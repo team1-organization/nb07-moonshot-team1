@@ -7,7 +7,7 @@
 export function isNumeric(value: unknown): value is number {
   // Number.isFinite NaN, Infinity, undefined, null 등을 모두 false로 처리합니다.
   // 문자열이 들어올 경우 강제 형변환하여 처리합니다.
-  return typeof value === "number" && Number.isFinite(value);
+  return typeof value === 'number' && Number.isFinite(value);
 }
 
 /**
@@ -52,14 +52,15 @@ export function isInteger(value: unknown): boolean {
  */
 export function formatNumber(
   value: unknown,
-  locale: string = "ko-KR",
-  style: Intl.NumberFormatOptions = { style: "decimal" },
+  locale: string = 'ko-KR',
+  style: Intl.NumberFormatOptions = { style: 'decimal' },
 ): string {
   const num = safeNumber(value, 0);
   try {
     return new Intl.NumberFormat(locale, style).format(num);
   } catch (error) {
-    console.error("숫자 포맷 오류:", error);
+    // eslint-disable-next-line no-console
+    console.error('숫자 포맷 오류:', error);
     return String(num); // 원본 숫자 문자열 반환
   }
 }
@@ -70,8 +71,8 @@ export function formatNumber(
  * @returns {string} 예: "1,234,567원"
  */
 export function formatCurrency(value: unknown): string {
-  const formatted = formatNumber(value, "ko-KR", {
-    style: "decimal",
+  const formatted = formatNumber(value, 'ko-KR', {
+    style: 'decimal',
     maximumFractionDigits: 0,
   });
   return `${formatted}원`;
