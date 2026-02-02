@@ -7,7 +7,7 @@ import {
 } from './constants';
 import { Response } from 'express';
 
-function generateTokens(userId: number) {
+function generateTokens(userId: string) {
   const accessToken = jwt.sign({ id: userId }, JWT_ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
   const refreshToken = jwt.sign({ id: userId }, JWT_REFRESH_TOKEN_SECRET, { expiresIn: '1d' });
   return { accessToken, refreshToken };

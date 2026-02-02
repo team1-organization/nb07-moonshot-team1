@@ -3,6 +3,6 @@ import localStrategy from './localStrategy';
 import { accessTokenStrategy, refreshTokenStrategy } from './jwtStrategy';
 
 passport.use('local', localStrategy);
-passport.use('access-token', accessTokenStrategy);
-passport.use('refresh-token', refreshTokenStrategy);
+passport.use('accessToken', accessTokenStrategy);
+passport.use('refreshToken', refreshTokenStrategy);
 export default passport;
