@@ -50,3 +50,5 @@ Thumbs.db
 .stylelintcache
 **/.vitest/
 **/.idea/
+
+**/test.http

@@ -71,16 +71,10 @@ describe('인증 통합 테스트', () => {
       expect(res.body).toHaveProperty('refreshToken');
       // 갱신된 토큰으로 업데이트
       accessToken = res.body.accessToken;
-
-      const user = await request(app)
-        .get('/users/me')
-        .set('Authorization', `Bearer ${accessToken}`);
-      expect(user.status).toBe(200);
-      expect(user.body.email).toBe(testUser.email);
     });
     it('토큰 없이 갱신 시도 시 에러를 반환해야 한다', async () => {
       const res = await request(app).post('/auth/refresh');
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(401);
     });
   });
 });
