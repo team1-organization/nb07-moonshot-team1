@@ -26,7 +26,7 @@ enum TaskStatus {
 }
 
 // 할일 멤버 구분
-enum TaskRole {
+enum MemberRole {
   OWNER // 작성자
   MEMBER // 멤버(초대받은 사람)
 }
@@ -124,8 +124,9 @@ model Member {
   //멤버 상태
   status     MemberStatus @default(INVITED)
 
-  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  role    MemberRole @default(MEMBER)
+  user    User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  project Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@unique([project_id, user_id])
   @@index([user_id])
@@ -146,8 +147,6 @@ model Task {
   event_id   String?
   // 내용
   content    String     @db.Text
-  // 할일 역할
-  role       TaskRole   @default(MEMBER)
   // 시작일
   start_date DateTime   @db.Timestamptz(6)
   // 마감일
