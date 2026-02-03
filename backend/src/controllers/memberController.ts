@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import { MemberStatus, PrismaClient } from "../../generated/prisma";
+import { Request, Response } from 'express';
+import { MemberStatus, PrismaClient } from '../../generated/prisma';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({});
 
 // [GET] 프로젝트 멤버 조회
 export const getProjectMembers = async (req: Request, res: Response): Promise<void> => {
@@ -13,7 +13,7 @@ export const getProjectMembers = async (req: Request, res: Response): Promise<vo
     });
     res.status(200).json({ data: members });
   } catch (error) {
-    res.status(500).json({ message: "멤버 조회 실패", error });
+    res.status(500).json({ message: '멤버 조회 실패', error });
   }
 };
 
@@ -28,9 +28,9 @@ export const inviteMember = async (req: Request, res: Response): Promise<void> =
         user_id: Number(userId),
       }
     });
-    res.status(201).json({ message: "초대 성공", data: invitation });
+    res.status(201).json({ message: '초대 성공', data: invitation });
   } catch (error) {
-    res.status(500).json({ message: "초대 실패", error });
+    res.status(500).json({ message: '초대 실패', error });
   }
 };
 
@@ -44,9 +44,9 @@ export const removeMember = async (req: Request, res: Response): Promise<void> =
         user_id: Number(userId)
       }
     });
-    res.status(200).json({ message: "멤버 제외 완료" });
+    res.status(200).json({ message: '멤버 제외 완료' });
   } catch (error) {
-    res.status(500).json({ message: "멤버 제외 실패", error });
+    res.status(500).json({ message: '멤버 제외 실패', error });
   }
 };
 
@@ -62,13 +62,13 @@ export const acceptInvitation = async (req: Request, res: Response): Promise<voi
       },
     });
     res.status(200).json({
-      message: "초대를 수락했습니다.",
+      message: '초대를 수락했습니다.',
       data: JSON.parse(JSON.stringify(updatedMember, (key, value) =>
         typeof value === 'bigint' ? value.toString() : value
       ))
     });
   } catch (error) {
-    res.status(500).json({ message: "초대 수락 실패", error });
+    res.status(500).json({ message: '초대 수락 실패', error });
   }
 };
 
@@ -81,8 +81,8 @@ export const cancelInvitation = async (req: Request, res: Response): Promise<voi
       where: { id: BigInt(invitationId as string) }
     });
 
-    res.status(200).json({ message: "초대가 삭제되었습니다." });
+    res.status(200).json({ message: '초대가 삭제되었습니다.' });
   } catch (error) {
-    res.status(500).json({ message: "초대 삭제 실패", error });
+    res.status(500).json({ message: '초대 삭제 실패', error });
   }
 };
