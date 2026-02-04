@@ -1,9 +1,9 @@
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import { prisma } from '../prisma';
-import { LoginBodyStruct } from '../../structs/auth.struct';
 import { User } from '../../types/user.type';
 import { NotFoundError } from '../../errors/NotFoundError';
+import { loginUserBody } from '../../dtos/user.dto';
 
 const localStrategy = new LocalStrategy(
   {
@@ -11,7 +11,7 @@ const localStrategy = new LocalStrategy(
     passwordField: 'password',
   },
   async (email: string, password: string, done) => {
-    const data = LoginBodyStruct.parse({ email, password });
+    const data = loginUserBody.parse({ email, password });
     if (!email || !password) {
       return done(new NotFoundError('잘못된 요청입니다'), false);
     }
