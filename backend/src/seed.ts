@@ -1,26 +1,23 @@
-import { MemberStatus, ProviderEnum, TaskRole, TaskStatus } from '../generated/prisma';
+import { MemberRole, MemberStatus, ProviderEnum, TaskStatus } from '../generated/prisma'; // output 경로 확인 필요
 import { prisma } from '../src/lib/prisma';
 
 async function main(): Promise<void> {
-  console.log('시딩 시작...');
+  console.log('🚀 시딩 시작...');
 
-  // 기존 데이터 삭제
+  // 1. 기존 데이터 삭제 (삭제 순서 주의: 자식 -> 부모)
   await prisma.taskTag.deleteMany();
   await prisma.tag.deleteMany();
-
   await prisma.subTask.deleteMany();
   await prisma.taskImage.deleteMany();
   await prisma.comment.deleteMany();
-
   await prisma.task.deleteMany();
   await prisma.member.deleteMany();
-
   await prisma.project.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('️기존 데이터 초기화 완료');
+  console.log('🧹 기존 데이터 초기화 완료');
 
-  // 유저 생성
+  // 2. 유저 생성
   const [owner, member, outsider] = await Promise.all([
     prisma.user.create({
       data: {
@@ -46,7 +43,7 @@ async function main(): Promise<void> {
     }),
   ]);
 
-  // 프로젝트 생성
+  // 3. 프로젝트 생성
   const project = await prisma.project.create({
     data: {
       user_id: owner.id,
@@ -55,25 +52,38 @@ async function main(): Promise<void> {
     },
   });
 
-  // 프로젝트 멤버 구성 (JOINED만 접근 허용)
+  // 4. 프로젝트 멤버 구성 (MemberRole 사용)
   await prisma.member.createMany({
     data: [
-      { project_id: project.id, user_id: owner.id, status: MemberStatus.JOINED },
-      { project_id: project.id, user_id: member.id, status: MemberStatus.JOINED },
+      {
+        project_id: project.id,
+        user_id: owner.id,
+        status: MemberStatus.JOINED,
+        role: MemberRole.OWNER,
+      },
+      {
+        project_id: project.id,
+        user_id: member.id,
+        status: MemberStatus.JOINED,
+        role: MemberRole.MEMBER,
+      },
     ],
   });
 
-  // 태그 생성
+  // 5. 태그 생성
   const [tagUrgent, tagPlan, tagBug] = await Promise.all([
     prisma.tag.create({ data: { name: '긴급' } }),
     prisma.tag.create({ data: { name: '기획' } }),
     prisma.tag.create({ data: { name: '버그' } }),
   ]);
 
-  const now = Date.now();
-  const dateValue = (daysFromNow: number) => new Date(now + 1000 * 60 * 60 * 24 * daysFromNow);
+  const dateValue = (daysFromNow: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysFromNow);
+    return d;
+  };
 
-  // 할 일 생성
+  // 6. 할 일 생성 (Task 모델에는 role 필드가 없으므로 제외)
   const task1 = await prisma.task.create({
     data: {
       project_id: project.id,
@@ -81,9 +91,8 @@ async function main(): Promise<void> {
       title: '초기 API 명세서 작성',
       content: 'API 명세서를 작성합니다.',
       status: TaskStatus.TODO,
-      role: TaskRole.OWNER,
       start_date: dateValue(0),
-      end_date: dateValue(3), // 3일 후 (기한임박순 테스트)
+      end_date: dateValue(3),
 
       subTasks: {
         create: [
@@ -93,10 +102,7 @@ async function main(): Promise<void> {
       },
 
       tags: {
-        create: [
-          { tag_id: tagPlan.id }, // 기획
-          { tag_id: tagUrgent.id }, // 긴급
-        ],
+        create: [{ tag_id: tagPlan.id }, { tag_id: tagUrgent.id }],
       },
     },
     select: { id: true },
@@ -109,9 +115,8 @@ async function main(): Promise<void> {
       title: '로그인 버그 수정',
       content: '소셜 로그인 콜백 처리에서 에러 발생.',
       status: TaskStatus.IN_PROGRESS,
-      role: TaskRole.MEMBER,
       start_date: dateValue(-1),
-      end_date: dateValue(1), //(기한임박순 테스트)
+      end_date: dateValue(1),
 
       tags: {
         create: [{ tag_id: tagBug.id }],
@@ -131,10 +136,9 @@ async function main(): Promise<void> {
     data: {
       project_id: project.id,
       user_id: owner.id,
-      title: 'Charlie - 문서 정리',
+      title: '문서 정리',
       content: 'README / API 문서 / ERD 정리',
       status: TaskStatus.DONE,
-      role: TaskRole.OWNER,
       start_date: dateValue(-7),
       end_date: dateValue(10),
 
@@ -145,7 +149,7 @@ async function main(): Promise<void> {
     select: { id: true },
   });
 
-  // 댓글 생성
+  // 7. 댓글 생성
   await prisma.comment.createMany({
     data: [
       {
@@ -161,27 +165,17 @@ async function main(): Promise<void> {
     ],
   });
 
-  // 추가 태그 연결
-  await prisma.taskTag.create({
-    data: {
-      task_id: task3.id,
-      tag_id: tagUrgent.id,
-    },
-  });
-
-  console.log('시딩 완료');
+  console.log('✅ 시딩 완료');
   console.log({
     ownerId: owner.id.toString(),
     memberId: member.id.toString(),
-    outsiderId: outsider.id.toString(),
     projectId: project.id.toString(),
-    taskIds: [task1.id, task2.id, task3.id].map((x) => x.toString()),
   });
 }
 
 main()
   .catch((error: Error) => {
-    console.error('시딩 중 에러 발생');
+    console.error('❌ 시딩 중 에러 발생');
     console.error(error);
     process.exit(1);
   })

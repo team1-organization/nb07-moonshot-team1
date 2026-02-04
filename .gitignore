@@ -52,3 +52,5 @@ Thumbs.db
 **/.idea/
 
 **/test.http
+**/tests/**/*.map
+**/tests/**/*.js

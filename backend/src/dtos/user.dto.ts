@@ -17,6 +17,7 @@ export const loginUser = createUser.pick({
   email: true,
   password: true,
 });
+
 export type createUserDTO = z.infer<typeof createUser>;
 export type updateUserDTO = z.infer<typeof updateUser>;
 export type loginUserDTO = z.infer<typeof loginUser>;
