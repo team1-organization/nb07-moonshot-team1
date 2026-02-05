@@ -10,6 +10,7 @@ export const commonIdParam = z
     taskId: idRule,
     userId: idRule,
     commentId: idRule,
+    subTaskId: idRule,
   })
   .partial();
 
