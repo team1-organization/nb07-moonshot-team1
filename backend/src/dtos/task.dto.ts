@@ -17,7 +17,6 @@ export const baseTaskBody = z.object({
 
 export const createTaskBody = baseTaskBody
   .transform((data) => {
-    const now = LocalDateTime();
     const startDateTime = LocalDateTime(`${data.startYear}-${data.startMonth}-${data.startDay}`);
     const endDateTime = LocalDateTime(`${data.endYear}-${data.endMonth}-${data.endDay}`);
     return {
