@@ -3,72 +3,48 @@ import { CustomError } from './customError';
 import { Prisma } from '../../generated/prisma';
 
 interface HttpError extends Error {
-  status?: number;
-  statusCode?: number;
+  statusCode: number;
+  message: string;
 }
+
+const PRISMA_ERROR_MAP: Record<string, { status: number; message: string }> = {
+  P2002: { status: 409, message: '이미 존재하는 데이터입니다.' },
+  P2025: { status: 404, message: '해당 데이터를 찾을 수 없습니다.' },
+  P2003: { status: 400, message: '외래 키 제약 조건 위반입니다.' },
+};
 
 export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction): void {
   console.error(`[Error] ${req.method} ${req.url}`, err);
+  let statusCode = 500;
+  let message = '서버 내부 오류가 발생했습니다.';
+  let stack =
+    process.env.NODE_ENV === 'development' && err instanceof Error ? err.stack : undefined;
 
   if (err instanceof CustomError) {
-    res.status(err.statusCode).json({
-      success: false,
-      message: err.message,
-    });
-    return;
-  }
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    const prismaError = err as Prisma.PrismaClientKnownRequestError;
-    if (prismaError.code === 'P2002') {
-      res.status(409).json({
-        success: false,
-        message: `이미 존재하는 데이터입니다.`,
-      });
-      return;
-    }
-    if (prismaError.code === 'P2025') {
-      res.status(404).json({
-        success: false,
-        message: '해당 데이터를 찾을 수 없습니다.',
-      });
-      return;
-    }
-  }
-  if (err instanceof Error) {
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    const errorData = PRISMA_ERROR_MAP[err.code];
+    statusCode = errorData?.status || 500;
+    message = errorData?.message || `[${err.code}] 데이터베이스 오류가 발생했습니다`;
+  } else if (err instanceof Error) {
     const error = err as HttpError;
-    const status = error.status || error.statusCode;
-    if (err.name === 'AuthenticationError' || status) {
-      const statusCode = status || 401;
-      let message = err.message;
+    statusCode = error.statusCode || 500;
+    message = error.message;
 
-      // 테스트 기댓값에 맞게 메시지 변환
-      if (statusCode === 400 && message === 'Bad Request') {
-        message = '잘못된 요청입니다';
-      }
-
-      res.status(statusCode).json({ message });
-      return;
-    }
-
+    if (err.name === 'AuthenticationError') statusCode = 401;
     if (err.message.includes('JSON')) {
-      res.status(400).json({
-        success: false,
-        message: '잘못된 JSON 형식입니다. 요청 데이터를 확인해주세요.',
-      });
-      return;
+      statusCode = 400;
+      message = '잘못된 JSON 형식입니다.';
     }
-    res.status(500).json({
-      success: false,
-      message: '서버 내부 오류가 발생했습니다.',
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-    });
-    return;
+    if (statusCode === 400 && message === 'Bad Request') {
+      message = '잘못된 요청입니다';
+    }
   }
 
   // 위에서 감지되지 않은 오류
-  res.status(500).json({
-    success: false,
-    message: '서버 내부 오류가 발생했습니다.',
+  res.status(statusCode).json({
+    message,
+    stack,
   });
-  return;
 }

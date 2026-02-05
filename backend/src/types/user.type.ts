@@ -1,4 +1,3 @@
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 export type AuthProvider = 'LOCAL' | 'GOOGLE' | 'KAKAO' | 'FACEBOOK' | 'NAVER';
 export interface UserData {
   id: bigint;

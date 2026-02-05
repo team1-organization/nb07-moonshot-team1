@@ -2,7 +2,7 @@ import { clearTokenCookies, generateTokens, setTokenCookies } from '../lib/token
 import { Request, Response } from 'express';
 import * as userService from '../services/auth.service';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-import { createUser } from '../dtos/user.dto';
+import { createUserBody } from '../dtos/user.dto';
 
 export function login(req: Request, res: Response) {
   const user = req.user;
@@ -15,7 +15,9 @@ export function login(req: Request, res: Response) {
   });
 }
 export async function register(req: Request, res: Response) {
-  const { email, name, password, profileImage, provider, providerId } = createUser.parse(req.body);
+  const { email, name, password, profileImage, provider, providerId } = createUserBody.parse(
+    req.body,
+  );
   const createdUser = await userService.register({
     email,
     name,
