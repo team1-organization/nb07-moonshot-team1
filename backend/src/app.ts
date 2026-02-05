@@ -2,10 +2,11 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import authRouter from './routes/auth.router';
 import { errorHandler } from './errors/errorHandler';
+import authRouter from './routes/auth.router';
 import taskRouter from './routes/task.router';
 import projectRouter from './routes/project.router';
+import subTaskRouter from './routes/subTask.router';
 
 BigInt.prototype.toJSON = function (): string {
   return this.toString();
@@ -22,6 +23,7 @@ app.use(cookieParser());
 app.use('/auth', authRouter);
 app.use('/projects', projectRouter);
 app.use('/tasks', taskRouter);
+app.use('/subtasks', subTaskRouter);
 
 app.use(errorHandler);
 export default app;
