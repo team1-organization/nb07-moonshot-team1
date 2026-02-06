@@ -116,11 +116,10 @@ export async function getTasks({
   });
 }
 
-export async function getTaskDetail({ taskId, userId }: { taskId: string; userId: string }) {
+export async function getTaskDetail({ taskId }: { taskId: string }) {
   return prisma.task.findFirst({
     where: {
       id: BigInt(taskId),
-      user_id: BigInt(userId),
     },
     include: TASK_INCLUDE,
   });
