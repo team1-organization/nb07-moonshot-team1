@@ -11,6 +11,9 @@ export const createSubTaskBody = baseSubTaskBody.transform((data) => {
 });
 
 export const updateSubTaskBody = baseSubTaskBody
+  .extend({
+    status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']).optional(),
+  })
   .partial()
   .refine((data) => Object.keys(data).length > 0, { message: '수정하려는 데이터가 없습니다.' })
   .transform((data) => {

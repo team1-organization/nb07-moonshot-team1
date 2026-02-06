@@ -2,12 +2,14 @@ import { safeString } from '../utils/string.util';
 import { default as LocalDateTime } from 'dayjs';
 import { DATE_FORMAT } from '../dtos/common.dto';
 
+export type SubTaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
+
 export interface SubTaskData {
   id: bigint;
   task_id: bigint;
   user_id: bigint;
   content: string;
-  completed: boolean;
+  status: SubTaskStatus;
   created_at: Date;
   updated_at: Date;
 }
@@ -17,7 +19,7 @@ export interface SubTaskParams {
   taskId: string;
   userId: string;
   content: string;
-  completed: boolean;
+  status: SubTaskStatus;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,7 +29,7 @@ export class SubTask {
   readonly taskId: string;
   readonly userId: string;
   readonly content: string;
-  readonly completed: boolean;
+  readonly status: SubTaskStatus;
   readonly createdAt: string;
   readonly updatedAt: string;
 
@@ -36,7 +38,7 @@ export class SubTask {
     this.taskId = params.taskId;
     this.userId = params.userId;
     this.content = params.content;
-    this.completed = params.completed;
+    this.status = params.status;
     this.createdAt = params.createdAt;
     this.updatedAt = params.updatedAt;
   }
@@ -47,7 +49,7 @@ export class SubTask {
       taskId: safeString(data.task_id),
       userId: safeString(data.user_id),
       content: data.content,
-      completed: data.completed,
+      status: data.status,
       createdAt: LocalDateTime(data.created_at).format(DATE_FORMAT),
       updatedAt: LocalDateTime(data.updated_at).format(DATE_FORMAT),
     });
