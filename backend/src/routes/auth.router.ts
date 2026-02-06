@@ -3,7 +3,6 @@ import {
   googleLogin,
   login,
   logout,
-  redirectToGoogle,
   refreshTokens,
   register,
 } from '../controllers/auth.controller';
@@ -23,11 +22,7 @@ router.post(
   passport.authenticate('refreshToken', { session: false, failWithError: true }),
   withAsync(refreshTokens),
 );
-router.get(
-  '/google',
-  passport.authenticate('google', { session: false, failWithError: true }),
-  withAsync(redirectToGoogle),
-);
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get(
   '/google/callback',
   passport.authenticate('google', { session: false, failWithError: true }),
