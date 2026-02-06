@@ -14,7 +14,7 @@ export async function createTask({
   userId: string;
   data: createTaskDTO;
 }) {
-  const findMember = await memberRepository.findProjectMember({ projectId, userId });
+  const findMember = await memberRepository.isMemberByProjectId({ projectId, userId });
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
 
   const taskData = await taskRepository.createTask({
@@ -25,6 +25,7 @@ export async function createTask({
   if (!taskData) {
     throw new Error('할 일을 생성하지 못했습니다.');
   }
+
   return Task.fromEntity(taskData);
 }
 export async function getTasks({
@@ -36,7 +37,7 @@ export async function getTasks({
   userId: string;
   data: searchParamsDTO;
 }) {
-  const findMember = await memberRepository.findProjectMember({ projectId, userId });
+  const findMember = await memberRepository.isMemberByProjectId({ projectId, userId });
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
   const taskData = await taskRepository.getTasks({
     projectId,
@@ -46,11 +47,11 @@ export async function getTasks({
   return Task.fromEntityList(taskData);
 }
 export async function getTaskDetail({ taskId, userId }: { taskId: string; userId: string }) {
-  const taskData = await taskRepository.getTaskDetail({ taskId, userId });
+  const taskData = await taskRepository.getTaskDetail({ taskId });
   if (!taskData) {
     throw new Error('할 일을 찾을 수 없습니다.');
   }
-  const findMember = await memberRepository.findProjectMember({
+  const findMember = await memberRepository.isMemberByProjectId({
     projectId: taskData.project_id.toString(),
     userId,
   });
@@ -66,9 +67,9 @@ export async function updateTask({
   userId: string;
   data: updateTaskDTO;
 }) {
-  const existingTask = await taskRepository.getTaskDetail({ taskId, userId });
+  const existingTask = await taskRepository.getTaskDetail({ taskId });
   if (!existingTask) throw new Error('수정하려는 할 일이 없습니다.');
-  const findMember = await memberRepository.findProjectMember({
+  const findMember = await memberRepository.isMemberByProjectId({
     projectId: existingTask.project_id.toString(),
     userId,
   });
@@ -81,9 +82,9 @@ export async function updateTask({
   return Task.fromEntity(updateTask);
 }
 export async function deleteTask({ taskId, userId }: { taskId: string; userId: string }) {
-  const existingTask = await taskRepository.getTaskDetail({ taskId, userId });
+  const existingTask = await taskRepository.getTaskDetail({ taskId });
   if (!existingTask) throw new Error('삭제하려는 할 일이 없습니다.');
-  const findMember = await memberRepository.findProjectMember({
+  const findMember = await memberRepository.isMemberByProjectId({
     projectId: existingTask.project_id.toString(),
     userId,
   });

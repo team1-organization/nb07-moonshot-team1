@@ -6,6 +6,7 @@ export const baseTaskBody = z.object({
   content: z.string().min(1, '내용을 입력해주세요').max(1000),
   startYear: z.number().int().min(2026),
   startMonth: z.number().int().min(1).max(12),
+
   startDay: z.number().int().min(1).max(31),
   endYear: z.number().int().min(2026),
   endMonth: z.number().int().min(1).max(12),
@@ -39,7 +40,9 @@ export const createTaskBody = baseTaskBody
 
 export const updateTaskBody = baseTaskBody
   .partial()
-  .refine((data) => Object.keys(data).length > 0, { message: '수정하려는 데이터가 없습니다.' })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: '수정하려는 데이터가 없습니다.',
+  })
   .transform((data) => {
     const hasStartDate = data.startYear && data.startMonth && data.startDay;
     const hasEndDate = data.endYear && data.endMonth && data.endDay;
