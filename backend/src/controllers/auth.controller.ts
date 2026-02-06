@@ -54,5 +54,22 @@ export function logout(req: Request, res: Response) {
     message: '로그아웃 되었습니다.',
   });
 }
-export async function redirectToGoogle(req: Request, res: Response) {}
-export async function googleLogin(req: Request, res: Response) {}
+
+export function googleLogin(req: Request, res: Response) {
+  const user = req.user;
+
+  if (!user) throw new UnauthorizedError('구글 인증 정보가 없습니다.');
+  const { accessToken, refreshToken } = userService.login(user.id);
+  setTokenCookies(res, accessToken, refreshToken);
+  const frontendUrl = process.env.FRONTEND_URL;
+  if (frontendUrl) {
+    res.status(307).redirect(frontendUrl);
+  } else {
+    // 테스트 용도
+    return res.status(200).json({
+      message: '구글 로그인 성공(프론트 연동 전 테스트)',
+      accessToken,
+      refreshToken,
+    });
+  }
+}
