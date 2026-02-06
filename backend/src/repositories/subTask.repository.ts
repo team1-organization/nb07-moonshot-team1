@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { searchParamsDTO } from '../dtos/common.dto';
 import { updateSubTaskDTO } from '../dtos/subTask.dto';
+import { SubTaskStatus } from '../types/subTask.type';
 
 export async function createSubTask({
   taskId,
@@ -16,7 +17,7 @@ export async function createSubTask({
       task_id: BigInt(taskId),
       user_id: BigInt(userId),
       content: title,
-      completed: false,
+      status: 'TODO',
     },
   });
 }
@@ -73,11 +74,11 @@ export async function updateSubTask({
 export async function updateSubTaskStatus({
   subTaskId,
   userId,
-  completed,
+  status,
 }: {
   subTaskId: string;
   userId: string;
-  completed: boolean;
+  status: SubTaskStatus;
 }) {
   return prisma.subTask.update({
     where: {
@@ -85,7 +86,7 @@ export async function updateSubTaskStatus({
       user_id: BigInt(userId),
     },
     data: {
-      completed,
+      status,
     },
   });
 }

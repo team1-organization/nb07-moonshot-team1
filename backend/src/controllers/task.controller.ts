@@ -16,7 +16,6 @@ export async function createTask(req: Request, res: Response) {
       projectId: req.params.projectId,
       userId: req.user.id,
     });
-
   const data = createTaskBody.parse(req.body);
   const task = await taskService.createTask({ projectId, userId, data });
   res.status(200).json(task);
