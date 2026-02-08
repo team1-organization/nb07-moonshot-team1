@@ -2,13 +2,23 @@ import { Router } from 'express';
 import { withAsync } from '../lib/withAsync';
 import * as taskController from '../controllers/task.controller';
 import passport from '../lib/passport';
+import * as projectController from '../controllers/project.controller';
+import { get } from 'https';
 
 const router = Router();
-//프로젝트생성
-// router
-//   .route('/')
-//   .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
-//   .post(withAsync(projectController.createProject));
+//프로젝트 생성
+
+router
+  .route('/')
+  .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
+  .post(withAsync(projectController.createProject));
+
+router
+  .route('/:projectId')
+  .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
+  .get(withAsync(projectController.getProject))
+  .patch(withAsync(projectController.updateProject))
+  .delete(withAsync(projectController.deleteProject));
 
 router
   .route('/:projectId/tasks')
