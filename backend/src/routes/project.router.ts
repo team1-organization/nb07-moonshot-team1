@@ -3,7 +3,6 @@ import { withAsync } from '../lib/withAsync';
 import * as taskController from '../controllers/task.controller';
 import passport from '../lib/passport';
 import * as projectController from '../controllers/project.controller';
-import { get } from 'https';
 
 const router = Router();
 //프로젝트 생성
