@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-//import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
+import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
 
 //프로젝트 생성
 export const createProject = async (req: Request, res: Response) => {

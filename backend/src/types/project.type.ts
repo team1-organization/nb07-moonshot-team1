@@ -1,7 +1,7 @@
 import { safeString } from '../utils/string.util';
 import { DATE_FORMAT } from '../dtos/common.dto';
 import { TaskStatus } from './task.type';
-//import { UserData } from './user.type';
+import { UserData } from './user.type';
 
 export type ProjectRole = 'OWNER' | 'MEMBER';
 export type projectStatus = 'JOINED' | 'INVITED';
