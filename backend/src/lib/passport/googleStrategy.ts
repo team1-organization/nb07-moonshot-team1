@@ -2,7 +2,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { prisma } from '../prisma';
 import { User } from '../../types/user.type';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { GOOGLE_CALLBACK_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../../lib/constants';
+import { GOOGLE_CALLBACK_URL, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from '../constants';
 
 const googleStrategy = new GoogleStrategy(
   {
@@ -10,7 +10,7 @@ const googleStrategy = new GoogleStrategy(
     clientSecret: GOOGLE_CLIENT_SECRET,
     callbackURL: GOOGLE_CALLBACK_URL,
   },
-  async (accessToken, refreshToken, profile, done) => {
+  async (_accessToken, _refreshToken, profile, done) => {
     const email = profile.emails?.[0].value;
 
     if (!email) {
