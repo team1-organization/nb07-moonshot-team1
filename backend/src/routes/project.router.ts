@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { withAsync } from '../lib/withAsync';
+import * as projectController from '../controllers/project.controller';
 import * as taskController from '../controllers/task.controller';
 import passport from '../lib/passport';
 
 const router = Router();
-//프로젝트생성
-// router
-//   .route('/')
-//   .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
-//   .post(withAsync(projectController.createProject));
+router
+  .route('/')
+  .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
+  .post(withAsync(projectController.createProject));
 
 router
   .route('/:projectId/tasks')

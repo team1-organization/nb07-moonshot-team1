@@ -56,10 +56,6 @@ export class Project {
 export interface ProjectSummaryData {
   id: bigint;
   title: string;
-  member_count: number;
-  todo_count: number;
-  inProgress_count: number;
-  done_count: number;
   member: {
     id: bigint;
   }[];
@@ -106,7 +102,7 @@ export class ProjectSummary {
     const taskData = (data.tasks || []).reduce(
       (acc, task) => {
         if (task.status === 'TODO') acc.todo++;
-        else if (task.status === 'IN_PROGRESS') acc.done++;
+        else if (task.status === 'IN_PROGRESS') acc.inProgress++;
         else if (task.status === 'DONE') acc.done++;
         return acc;
       },
