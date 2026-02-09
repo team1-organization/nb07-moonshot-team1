@@ -1,0 +1,132 @@
+import { safeString } from '../utils/string.util';
+import { default as LocalDateTime } from 'dayjs';
+import { DATE_FORMAT } from '../dtos/common.dto';
+import { TaskStatus } from './task.type';
+
+export interface ProjectData {
+  id: bigint;
+  user_id: bigint;
+  title: string;
+  description: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ProjectParams {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export class Project {
+  readonly id: string;
+  readonly userId: string;
+  readonly title: string;
+  readonly description: string;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+
+  constructor(params: ProjectParams) {
+    this.id = params.id;
+    this.userId = params.userId;
+    this.title = params.title;
+    this.description = params.description;
+    this.createdAt = params.createdAt;
+    this.updatedAt = params.updatedAt;
+  }
+  static fromEntity(data: ProjectData): Project {
+    if (!data) throw new Error('데이터가 없습니다.');
+    return new Project({
+      id: safeString(data.id),
+      userId: safeString(data.user_id),
+      title: data.title,
+      description: data.description,
+      createdAt: LocalDateTime(data.created_at).format(DATE_FORMAT),
+      updatedAt: LocalDateTime(data.updated_at).format(DATE_FORMAT),
+    });
+  }
+  static fromEntityList(data: ProjectData[]): Project[] {
+    return data.map((taskData: ProjectData) => Project.fromEntity(taskData));
+  }
+}
+
+export interface ProjectSummaryData {
+  id: bigint;
+  title: string;
+  member_count: number;
+  todo_count: number;
+  inProgress_count: number;
+  done_count: number;
+  member: {
+    id: bigint;
+  }[];
+  tasks: {
+    status: TaskStatus;
+  }[];
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ProjectSummaryParam {
+  id: string;
+  title: string;
+  memberCount: number;
+  todoCount: number;
+  inProgressCount: number;
+  doneCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export class ProjectSummary {
+  readonly id: string;
+  readonly title: string;
+  readonly memberCount: number;
+  readonly todoCount: number;
+  readonly inProgressCount: number;
+  readonly doneCount: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+  constructor(params: ProjectSummaryParam) {
+    this.id = safeString(params.id);
+    this.title = params.title;
+    this.memberCount = params.memberCount;
+    this.todoCount = params.todoCount;
+    this.inProgressCount = params.inProgressCount;
+    this.doneCount = params.doneCount;
+    this.createdAt = params.createdAt;
+    this.updatedAt = params.updatedAt;
+  }
+  static fromEntity(data: ProjectSummaryData): ProjectSummary {
+    if (!data) throw new Error('데이터가 없습니다.');
+
+    const taskData = (data.tasks || []).reduce(
+      (acc, task) => {
+        if (task.status === 'TODO') acc.todo++;
+        else if (task.status === 'IN_PROGRESS') acc.done++;
+        else if (task.status === 'DONE') acc.done++;
+        return acc;
+      },
+      { todo: 0, inProgress: 0, done: 0 },
+    );
+
+    return new ProjectSummary({
+      id: safeString(data.id),
+      title: data.title,
+      memberCount: data.member.length || 0,
+      todoCount: taskData.todo,
+      inProgressCount: taskData.inProgress,
+      doneCount: taskData.done,
+      createdAt: LocalDateTime(data.created_at).format(DATE_FORMAT),
+      updatedAt: LocalDateTime(data.updated_at).format(DATE_FORMAT),
+    });
+  }
+  static fromEntityList(data: ProjectSummaryData[]): ProjectSummary[] {
+    return data.map((projectSummary: ProjectSummaryData) =>
+      ProjectSummary.fromEntity(projectSummary),
+    );
+  }
+}

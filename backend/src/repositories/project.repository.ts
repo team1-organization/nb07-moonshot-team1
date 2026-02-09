@@ -1,34 +1,54 @@
-// src/services/project.service.ts
+import { createProjectDTO } from '../dtos/project.dto';
+import { searchParamsDTO } from '../dtos/common.dto';
 import { prisma } from '../lib/prisma';
 
-export async function createProject({
+export async function createProject({ userId, data }: { userId: string; data: createProjectDTO }) {
+  return prisma.project.create({
+    data: {
+      user_id: BigInt(userId),
+      title: data.title,
+      description: data.description,
+    },
+  });
+}
+export async function getMyProjects({
   userId,
-  title,
-  description,
+  params,
 }: {
   userId: string;
-  title: string;
-  description: string;
+  params: searchParamsDTO;
 }) {
-  return prisma.$transaction(async (tx) => {
-    // 프로젝트 생성
-    const project = await tx.project.create({
-      data: {
-        title,
-        description,
-        user_id: BigInt(userId), // 생성자 기록
+  const [projects, total] = await Promise.all([
+    prisma.project.findMany({
+      where: {
+        member: {
+          some: {
+            user_id: BigInt(userId),
+            status: 'JOINED',
+          },
+        },
       },
-    });
-
-    await tx.member.create({
-      data: {
-        project_id: project.id,
-        user_id: BigInt(userId),
-        status: 'JOINED', // INVITED, JOINED
-        role: 'OWNER', //OWNER, //MEMBER
+      include: {
+        member: { select: { id: true } },
+        tasks: { select: { status: true } },
       },
-    });
-
-    return project;
-  });
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      orderBy: { created_at: 'desc' },
+    }),
+    prisma.project.count({
+      where: {
+        member: {
+          some: {
+            user_id: BigInt(userId),
+            status: 'JOINED',
+          },
+        },
+      },
+    }),
+  ]);
+  return {
+    projects,
+    total,
+  };
 }

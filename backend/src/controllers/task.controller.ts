@@ -133,3 +133,14 @@ export async function deleteSubTask(req: Request, res: Response) {
   await subTaskService.deleteSubTask({ subTaskId, userId });
   res.status(204).json();
 }
+
+export async function getMyTasks(req: Request, res: Response) {
+  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+  const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+    userId: req.user.id,
+  });
+
+  const params = listParams.parse(req.query);
+  const tasks = await taskService.getMyTasks(userId, params);
+  res.status(200).json(tasks);
+}
