@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { withAsync } from '../lib/withAsync';
-import * as taskController from '../controllers/task.controller';
 import passport from '../lib/passport';
 import * as projectController from '../controllers/project.controller';
 

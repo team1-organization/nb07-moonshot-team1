@@ -91,3 +91,11 @@ export async function deleteTask({ taskId, userId }: { taskId: string; userId: s
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
   return await taskRepository.deleteTask(taskId, userId);
 }
+
+export async function getMyTasks(userId: string, params: searchParamsDTO) {
+  const tasks = await taskRepository.getMyTasks({
+    userId,
+    params,
+  });
+  return Task.fromEntityList(tasks);
+}

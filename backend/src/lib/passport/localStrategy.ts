@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { prisma } from '../prisma';
 import { User } from '../../types/user.type';
 import { NotFoundError } from '../../errors/NotFoundError';
-import { loginUserBody } from '../../dtos/user.dto';
+import { loginUserBody, loginUserDTO } from '../../dtos/user.dto';
 
 const localStrategy = new LocalStrategy(
   {
@@ -11,7 +11,7 @@ const localStrategy = new LocalStrategy(
     passwordField: 'password',
   },
   async (email: string, password: string, done) => {
-    const data = loginUserBody.parse({ email, password });
+    const data: loginUserDTO = loginUserBody.parse({ email, password });
     if (!email || !password) {
       return done(new NotFoundError('잘못된 요청입니다'), false);
     }
