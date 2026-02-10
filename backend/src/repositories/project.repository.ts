@@ -1,16 +1,22 @@
-import { createProjectDTO } from '../dtos/project.dto';
 import { searchParamsDTO } from '../dtos/common.dto';
 import { prisma } from '../lib/prisma';
 
-export async function createProject({ userId, data }: { userId: string; data: createProjectDTO }) {
-  return prisma.project.create({
-    data: {
-      user_id: BigInt(userId),
-      title: data.title,
-      description: data.description,
-    },
-  });
-}
+// export async function createProject({
+//   userId,
+//   data,
+// }: {
+//   userId: string;
+//   data: simpleCreateProjectDTO;
+// }) {
+//   return prisma.project.create({
+//     data: {
+//       user_id: BigInt(userId),
+//       title: data.title,
+//       description: data.description,
+//     },
+//   });
+// }
+
 export async function getMyProjects({
   userId,
   params,
