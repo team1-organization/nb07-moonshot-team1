@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { withAsync } from '../lib/withAsync';
-import * as taskController from '../controllers/task.controller';
 import passport from '../lib/passport';
+import * as taskController from '../controllers/task.controller';
 import * as projectController from '../controllers/project.controller';
 
 const router = Router();
-
 router
   .route('/')
   .all(passport.authenticate('accessToken', { session: false, failWithError: true }))

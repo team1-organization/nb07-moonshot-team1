@@ -43,3 +43,8 @@ export const dateRangeQuery = z
 export type searchParamsDTO = z.infer<typeof listParams>;
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+
+export type listResponse<T> = {
+  data: T[];
+  total: number;
+};

@@ -66,4 +66,9 @@ export class User {
   static fromEntityList(data: UserData[]): User[] {
     return data.map((userData: UserData) => User.fromEntity(userData));
   }
+
+  toProfile() {
+    const { id, email, name, profileImage, createdAt, updatedAt } = this;
+    return { id, email, name, profileImage, createdAt, updatedAt };
+  }
 }

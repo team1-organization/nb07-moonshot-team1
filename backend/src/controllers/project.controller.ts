@@ -1,8 +1,27 @@
-/* eslint-disable no-console */
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
+import { commonIdParam, listParams } from '../dtos/common.dto';
+import * as projectService from '../services/project.service';
+// export async function createProject(req: Request, res: Response) {
+//   if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+//   const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+//     userId: req.user.id,
+//   });
+//   const data = createProjectBody.parse(req.body);
+//   const project = await projectService.createProject({ userId, data });
+//   res.status(200).json(project);
+// }
+
+export async function getMyProjects(req: Request, res: Response) {
+  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+  const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+    userId: req.user.id,
+  });
+  const params = listParams.parse(req.query);
+  const project = await projectService.getMyProjects(userId, params);
+  res.status(200).json(project);
+}
 
 //프로젝트 생성
 export const createProject = async (req: Request, res: Response) => {
@@ -22,7 +41,7 @@ export const createProject = async (req: Request, res: Response) => {
         title,
         description,
         user_id: BigInt(user_id),
-        Member: {
+        member: {
           create: {
             user_id: BigInt(user_id),
             role: 'OWNER',
@@ -58,7 +77,7 @@ export const getProject = async (req: Request, res: Response) => {
       include: {
         _count: {
           select: {
-            Member: true,
+            member: true,
           },
         },
         tasks: {
@@ -79,7 +98,7 @@ export const getProject = async (req: Request, res: Response) => {
       id: Number(project.id),
       title: project.title,
       description: project.description,
-      memberCount: project._count.Member,
+      memberCount: project._count.member,
       todoCount,
       inProgressCount,
       doneCount,
@@ -119,7 +138,7 @@ export const updateProject = async (req: Request, res: Response) => {
       },
       include: {
         _count: {
-          select: { tasks: true, Member: true },
+          select: { tasks: true, member: true },
         },
       },
     });
@@ -132,7 +151,7 @@ export const updateProject = async (req: Request, res: Response) => {
       id: updateProject.id,
       title: updateProject.title,
       description: updateProject.description,
-      memberCount: updateProject._count.Member,
+      memberCount: updateProject._count.member,
       todoCount: updateProject._count.tasks,
       inProgressCount: updateProject._count.tasks,
       doneCount: updateProject._count.tasks,

@@ -180,3 +180,21 @@ export async function deleteTask(taskId: string, userId: string) {
     },
   });
 }
+
+export async function getMyTasks({ userId, params }: { userId: string; params: searchParamsDTO }) {
+  return prisma.task.findMany({
+    where: {
+      project: {
+        member: { some: { user_id: BigInt(userId), status: 'JOINED' } },
+      },
+    },
+    include: {
+      tags: { include: { tag: true } },
+      user: true,
+      taskImages: true,
+    },
+    skip: (params.page - 1) * params.limit,
+    take: params.limit,
+    orderBy: { created_at: 'desc' },
+  });
+}
