@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-
+import { commonIdParam, listParams } from '../dtos/common.dto';
+import * as projectService from '../services/project.service';
 // export async function createProject(req: Request, res: Response) {
 //   if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
 //   const { userId } = commonIdParam.pick({ userId: true }).required().parse({
@@ -12,15 +13,15 @@ import { UnauthorizedError } from '../errors/UnauthorizedError';
 //   res.status(200).json(project);
 // }
 
-// export async function getMyProjects(req: Request, res: Response) {
-//   if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
-//   const { userId } = commonIdParam.pick({ userId: true }).required().parse({
-//     userId: req.user.id,
-//   });
-//   const params = listParams.parse(req.query);
-//   const project = await projectService.getMyProjects(userId, params);
-//   res.status(200).json(project);
-// }
+export async function getMyProjects(req: Request, res: Response) {
+  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+  const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+    userId: req.user.id,
+  });
+  const params = listParams.parse(req.query);
+  const project = await projectService.getMyProjects(userId, params);
+  res.status(200).json(project);
+}
 
 //프로젝트 생성
 export const createProject = async (req: Request, res: Response) => {
