@@ -2,35 +2,45 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
+import * as subTaskService from '../services/subTask.service';
+import { bigint } from 'zod';
 //import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
 
 //프로젝트 생성
 export const createProject = async (req: Request, res: Response) => {
   try {
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
-    const { user_id, title, description } = req.body;
+    const authUser = req.user as { id?: string | number | bigint };
+    const { name: title, description } = req.body;
 
+    if (!authUser.id) {
+      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
+    }
+    const userId = Number(authUser.id);
     const projectCount = await prisma.project.count({
-      where: { user_id: BigInt(user_id) },
+      where: {
+        user_id: userId,
+      },
     });
 
     if (projectCount >= 5) {
       return res.status(400).json({ message: '유저당 최대 5개의 프로젝트만 생성 가능합니다.' });
     }
+
     const newProject = await prisma.project.create({
       data: {
         title,
         description,
-        user_id: BigInt(user_id),
-        Member: {
+        user_id: userId,
+        member: {
           create: {
-            user_id: BigInt(user_id),
+            user_id: userId,
             role: 'OWNER',
-            status: 'JOINED',
           },
         },
       },
     });
+
     return res.status(201).json({
       id: Number(newProject.id),
       title: newProject.title,
@@ -42,6 +52,9 @@ export const createProject = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(error);
+    if (error instanceof UnauthorizedError) {
+      return res.status(401).json({ message: error.message });
+    }
     return res.status(500).json({ message: '서버 오류 발생' });
   }
 };
@@ -51,20 +64,26 @@ export const createProject = async (req: Request, res: Response) => {
 export const getProject = async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params as { projectId: string };
+
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+    const authUser = req.user as { id?: string | number | bigint };
+
+    if (!authUser.id) {
+      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
+    }
+
+    const myId = BigInt(authUser.id);
+    const targetId = BigInt(projectId);
 
     const project = await prisma.project.findUnique({
-      where: { id: BigInt(projectId) },
+      where: {
+        id: targetId,
+      },
       include: {
-        _count: {
-          select: {
-            Member: true,
-          },
-        },
-        tasks: {
-          select: {
-            status: true,
-          },
+        _count: { select: { member: true } },
+        tasks: { select: { status: true } },
+        member: {
+          where: { user_id: myId },
         },
       },
     });
@@ -79,7 +98,7 @@ export const getProject = async (req: Request, res: Response) => {
       id: Number(project.id),
       title: project.title,
       description: project.description,
-      memberCount: project._count.Member,
+      memberCount: project._count.member,
       todoCount,
       inProgressCount,
       doneCount,
@@ -93,25 +112,44 @@ export const getProject = async (req: Request, res: Response) => {
 //프로젝트 수정
 export const updateProject = async (req: Request, res: Response) => {
   try {
-    const { projectId } = req.params;
+    const { projectId } = req.params as { projectId: string };
     const { title, description } = req.body;
+
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
 
+    const authUser = req.user as { id?: string | number | bigint };
+
+    if (!authUser.id) {
+      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
+    }
+
+    const myId = BigInt(authUser.id);
+    const targetId = BigInt(projectId);
+
     const project = await prisma.project.findUnique({
-      where: { id: BigInt(projectId as string) },
+      where: {
+        id: targetId,
+      },
+      include: {
+        _count: { select: { member: true } },
+        tasks: { select: { status: true } },
+        member: {
+          where: { user_id: myId },
+        },
+      },
     });
 
     if (!project) {
       return res.status(400).json({ message: '프로젝트를 찾을 수 없습니다.' });
     }
 
-    if (project.user_id !== BigInt(req.user.id)) {
+    if (project.user_id !== myId) {
       return res.status(403).json({ message: '프로젝트 관리자가 아닙니다.' });
     }
 
     const updateProject = await prisma.project.update({
       where: {
-        id: BigInt(projectId as string),
+        id: targetId,
       },
       data: {
         title: title ?? project.title,
@@ -119,7 +157,7 @@ export const updateProject = async (req: Request, res: Response) => {
       },
       include: {
         _count: {
-          select: { tasks: true, Member: true },
+          select: { tasks: true, member: true },
         },
       },
     });
@@ -132,7 +170,7 @@ export const updateProject = async (req: Request, res: Response) => {
       id: updateProject.id,
       title: updateProject.title,
       description: updateProject.description,
-      memberCount: updateProject._count.Member,
+      memberCount: updateProject._count.member,
       todoCount: updateProject._count.tasks,
       inProgressCount: updateProject._count.tasks,
       doneCount: updateProject._count.tasks,
@@ -146,23 +184,30 @@ export const updateProject = async (req: Request, res: Response) => {
 
 export const deleteProject = async (req: Request, res: Response) => {
   try {
-    const { projectId } = req.params;
+    const { projectId } = req.params as { projectId: string };
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+    const authUser = req.user as { id?: string | number | bigint };
+
+    if (!authUser.id) {
+      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
+    }
+    const myId = BigInt(authUser.id);
+    const targetId = BigInt(projectId);
 
     const project = await prisma.project.findUnique({
-      where: { id: BigInt(projectId as string) },
+      where: { id: targetId },
     });
 
     if (!project) {
       return res.status(404).json({ message: '삭제할 프로젝트를 찾을 수 없습니다.' });
     }
 
-    if (project.user_id !== BigInt(req.user.id)) {
+    if (project.user_id !== myId) {
       return res.status(403).json({ message: '삭제 권한이 없습니다.' });
     }
 
     await prisma.project.delete({
-      where: { id: BigInt(projectId as string) },
+      where: { id: targetId },
     });
 
     return res.status(204).send();

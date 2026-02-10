@@ -5,7 +5,6 @@ import passport from '../lib/passport';
 import * as projectController from '../controllers/project.controller';
 
 const router = Router();
-//프로젝트 생성
 
 router
   .route('/')

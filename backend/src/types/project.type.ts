@@ -4,7 +4,6 @@ import { TaskStatus } from './task.type';
 //import { UserData } from './user.type';
 
 export type ProjectRole = 'OWNER' | 'MEMBER';
-export type projectStatus = 'JOINED' | 'INVITED';
 
 export interface ProjectData {
   id: bigint;
