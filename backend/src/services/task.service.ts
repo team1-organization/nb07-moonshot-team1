@@ -14,7 +14,7 @@ export async function createTask({
   userId: string;
   data: createTaskDTO;
 }) {
-  const findMember = await memberRepository.isMemberByProjectId({ projectId, userId });
+  const findMember = await memberRepository.isMemberByProjectId(projectId, userId);
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
 
   const taskData = await taskRepository.createTask({
@@ -37,7 +37,7 @@ export async function getTasks({
   userId: string;
   data: searchParamsDTO;
 }) {
-  const findMember = await memberRepository.isMemberByProjectId({ projectId, userId });
+  const findMember = await memberRepository.isMemberByProjectId(projectId, userId);
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
   const taskData = await taskRepository.getTasks({
     projectId,
@@ -51,10 +51,7 @@ export async function getTaskDetail({ taskId, userId }: { taskId: string; userId
   if (!taskData) {
     throw new Error('할 일을 찾을 수 없습니다.');
   }
-  const findMember = await memberRepository.isMemberByProjectId({
-    projectId: taskData.project_id.toString(),
-    userId,
-  });
+  const findMember = await memberRepository.isMemberByTaskId(taskId, userId);
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
   return Task.fromEntity(taskData);
 }
@@ -69,10 +66,7 @@ export async function updateTask({
 }) {
   const existingTask = await taskRepository.getTaskDetail({ taskId });
   if (!existingTask) throw new Error('수정하려는 할 일이 없습니다.');
-  const findMember = await memberRepository.isMemberByProjectId({
-    projectId: existingTask.project_id.toString(),
-    userId,
-  });
+  const findMember = await memberRepository.isMemberByTaskId(taskId, userId);
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
   const updateTask = await taskRepository.updateTask({
     taskId,
@@ -84,10 +78,7 @@ export async function updateTask({
 export async function deleteTask({ taskId, userId }: { taskId: string; userId: string }) {
   const existingTask = await taskRepository.getTaskDetail({ taskId });
   if (!existingTask) throw new Error('삭제하려는 할 일이 없습니다.');
-  const findMember = await memberRepository.isMemberByProjectId({
-    projectId: existingTask.project_id.toString(),
-    userId,
-  });
+  const findMember = await memberRepository.isMemberByTaskId(taskId, userId);
   if (!findMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
   return await taskRepository.deleteTask(taskId, userId);
 }
