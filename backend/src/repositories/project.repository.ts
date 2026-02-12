@@ -30,7 +30,6 @@ export async function getMyProjects({
         member: {
           some: {
             user_id: BigInt(userId),
-            status: 'JOINED',
           },
         },
       },
@@ -47,7 +46,6 @@ export async function getMyProjects({
         member: {
           some: {
             user_id: BigInt(userId),
-            status: 'JOINED',
           },
         },
       },

@@ -185,7 +185,7 @@ export async function getMyTasks({ userId, params }: { userId: string; params: s
   return prisma.task.findMany({
     where: {
       project: {
-        member: { some: { user_id: BigInt(userId), status: 'JOINED' } },
+        member: { some: { user_id: BigInt(userId) } },
       },
     },
     include: {

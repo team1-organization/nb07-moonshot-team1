@@ -27,10 +27,13 @@ export async function getMyProjects(req: Request, res: Response) {
 export const createProject = async (req: Request, res: Response) => {
   try {
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
-    const { user_id, title, description } = req.body;
+    const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+      userId: req.user.id,
+    });
+    const { title, description } = req.body;
 
     const projectCount = await prisma.project.count({
-      where: { user_id: BigInt(user_id) },
+      where: { user_id: BigInt(userId) },
     });
 
     if (projectCount >= 5) {
@@ -40,12 +43,11 @@ export const createProject = async (req: Request, res: Response) => {
       data: {
         title,
         description,
-        user_id: BigInt(user_id),
+        user_id: BigInt(userId),
         member: {
           create: {
-            user_id: BigInt(user_id),
+            user_id: BigInt(userId),
             role: 'OWNER',
-            status: 'JOINED',
           },
         },
       },

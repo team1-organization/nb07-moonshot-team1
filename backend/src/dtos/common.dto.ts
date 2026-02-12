@@ -12,6 +12,8 @@ export const commonIdParam = z
     commentId: idRule,
     subTaskId: idRule,
     invitationId: idRule,
+    inviterId: idRule,
+    inviteeId: idRule,
   })
   .partial();
 
