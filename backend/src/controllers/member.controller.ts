@@ -71,6 +71,6 @@ export async function cancelInvitation(req: Request, res: Response) {
       invitationId: req.params.invitationId,
       userId: req.user.id,
     });
-  const member = await memberService.cancelInvitation(invitationId, userId);
-  res.status(200).json(member);
+  await memberService.cancelInvitation(invitationId, userId);
+  res.status(204).json();
 }

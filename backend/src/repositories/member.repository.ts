@@ -35,8 +35,21 @@ export async function createMember(userId: string, projectId: string) {
 export async function inviteMember(projectId: string, inviterId: string, email: string) {
   const invitee = await prisma.user.findUnique({ where: { email } });
   if (!invitee) throw new Error('존재하지 않는 사용자입니다.');
-  return prisma.invitation.create({
-    data: {
+  return prisma.invitation.upsert({
+    where: {
+      project_id_invitee_id: {
+        project_id: BigInt(projectId),
+        invitee_id: BigInt(invitee.id),
+      },
+    },
+    update: {
+      project_id: BigInt(projectId),
+      inviter_id: BigInt(inviterId),
+      invitee_id: BigInt(invitee.id),
+      expires_at: dayjs().add(7, 'day').toDate(),
+      status: 'PENDING',
+    },
+    create: {
       project_id: BigInt(projectId),
       inviter_id: BigInt(inviterId),
       invitee_id: BigInt(invitee.id),
@@ -129,11 +142,8 @@ export async function getProjectMembers({
 }
 
 export async function cancelInvitation(invitationId: string) {
-  return prisma.invitation.update({
+  return prisma.invitation.delete({
     where: { id: BigInt(invitationId) },
-    data: {
-      status: 'DECLINED',
-    },
   });
 }
 
