@@ -2,8 +2,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-import * as subTaskService from '../services/subTask.service';
-import { bigint } from 'zod';
+import { commonIdParam } from '../dtos/common.dto';
 //import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
 
 //프로젝트 생성
@@ -15,10 +14,6 @@ export const createProject = async (req: Request, res: Response) => {
     });
     const { title, description } = req.body;
 
-    if (!authUser.id) {
-      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
-    }
-    const userId = Number(authUser.id);
     const projectCount = await prisma.project.count({
       where: { user_id: BigInt(userId) },
     });
