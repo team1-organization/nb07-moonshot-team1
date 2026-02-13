@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { withAsync } from '../lib/withAsync';
 import passport from '../lib/passport';
-import * as taskController from '../controllers/task.controller';
 import * as projectController from '../controllers/project.controller';
 import * as memberController from '../controllers/member.controller';
 
 const router = Router();
+
 router
   .route('/')
   .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
@@ -17,7 +17,6 @@ router
   .get(withAsync(projectController.getProject))
   .patch(withAsync(projectController.updateProject))
   .delete(withAsync(projectController.deleteProject));
-
 router
   .route('/:projectId/tasks')
   .all(passport.authenticate('accessToken', { session: false, failWithError: true }))
