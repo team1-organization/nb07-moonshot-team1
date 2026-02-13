@@ -2,20 +2,34 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-import { commonIdParam } from '../dtos/common.dto';
-//import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
+import * as projectService from '../services/project.service';
+import { commonIdParam, listParams } from '../dtos/common.dto';
+
+export async function getMyProjects(req: Request, res: Response) {
+  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+  const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+    userId: req.user.id,
+  });
+  const params = listParams.parse(req.query);
+  const project = await projectService.getMyProjects(userId, params);
+  res.status(200).json(project);
+}
 
 //프로젝트 생성
 export const createProject = async (req: Request, res: Response) => {
   try {
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
-    const { userId } = commonIdParam.pick({ userId: true }).required().parse({
-      userId: req.user.id,
-    });
-    const { title, description } = req.body;
+    const authUser = req.user as { id?: string | number | bigint };
+    const { name: title, description } = req.body;
 
+    if (!authUser.id) {
+      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
+    }
+    const userId = Number(authUser.id);
     const projectCount = await prisma.project.count({
-      where: { user_id: BigInt(userId) },
+      where: {
+        user_id: userId,
+      },
     });
 
     if (projectCount >= 5) {
@@ -26,10 +40,10 @@ export const createProject = async (req: Request, res: Response) => {
       data: {
         title,
         description,
-        user_id: BigInt(userId),
+        user_id: userId,
         member: {
           create: {
-            user_id: BigInt(userId),
+            user_id: userId,
             role: 'OWNER',
           },
         },
