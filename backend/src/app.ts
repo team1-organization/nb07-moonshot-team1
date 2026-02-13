@@ -9,6 +9,7 @@ import projectRouter from './routes/project.router';
 import subTaskRouter from './routes/subTask.router';
 import commentRouter from './routes/comment.router';
 import userRouter from './routes/user.router';
+import memberRouter from './routes/member.router';
 
 BigInt.prototype.toJSON = function (): string {
   return this.toString();
@@ -28,6 +29,7 @@ app.use('/tasks', taskRouter);
 app.use('/subtasks', subTaskRouter);
 app.use('/comments', commentRouter);
 app.use('/users', userRouter);
+app.use('/invitations', memberRouter);
 
 app.use(errorHandler);
 export default app;

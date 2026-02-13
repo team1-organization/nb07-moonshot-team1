@@ -31,10 +31,10 @@ enum MemberRole {
   MEMBER // 멤버(초대받은 사람)
 }
 
-// 멤버 상태 (초대중, 참여)
-enum MemberStatus {
-  INVITED // 멤버 초대 상태
-  JOINED // 참여 중인 상태
+enum InvitationStatus {
+  PENDING // 초대 대기 중
+  ACCEPTED // 초대 수락됨
+  DECLINED // 초대 거절됨
 }
 
 model User {
@@ -58,15 +58,17 @@ model User {
   updated_at    DateTime     @updatedAt @db.Timestamptz(6)
 
   // 사용자가 생성한 프로젝트
-  project Project[]
+  projects Project[]
   // 사용자가 작성한 답글
-  comment Comment[]
+  comments Comment[]
   // 사용자가 프로젝트에 참여한 내용
-  member  Member[]
+  members  Member[]
   // 사용자 할일
-  task    Task[]
+  tasks    Task[]
   // 하위 할일
-  subTask SubTask[]
+  subTasks SubTask[]
+  inviters Invitation[] @relation("inviter")
+  invitees Invitation[] @relation("invitee")
 
   @@unique([provider, provider_id])
   @@index([created_at])
@@ -74,7 +76,7 @@ model User {
 
 model Project {
   // 프로젝트 고유 ID
-  id          BigInt   @id @default(autoincrement())
+  id          BigInt       @id @default(autoincrement())
   // 사용자 고유 ID
   user_id     BigInt
   // 제목
@@ -82,13 +84,15 @@ model Project {
   // 설명
   description String
   // 생성일시
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  created_at  DateTime     @default(now()) @db.Timestamptz(6)
   // 수정일시
-  updated_at  DateTime @updatedAt @db.Timestamptz(6)
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  updated_at  DateTime     @updatedAt @db.Timestamptz(6)
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
   tasks       Task[]
   member      Member[]
+  invitations Invitation[]
 
+  @@index([user_id])
   @@index([created_at])
 }
 
@@ -116,24 +120,21 @@ model Comment {
 
 model Member {
   // 멤버 고유 ID
-  id         BigInt       @id @default(autoincrement())
+  id         BigInt     @id @default(autoincrement())
   project_id BigInt
   user_id    BigInt
   // 생성일시
-  created_at DateTime     @default(now()) @db.Timestamptz(6)
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
   // 수정일시
-  updated_at DateTime     @updatedAt @db.Timestamptz(6)
-  //멤버 상태
-  status     MemberStatus @default(INVITED)
-
-  role    MemberRole @default(MEMBER)
-  user    User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  project Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  updated_at DateTime   @updatedAt @db.Timestamptz(6)
+  // 멤버 역할
+  role       MemberRole @default(MEMBER)
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  project    Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@unique([project_id, user_id])
   @@index([user_id])
   @@index([project_id])
-  @@index([status])
 }
 
 model Task {
@@ -168,12 +169,10 @@ model Task {
   subTasks   SubTask[]
   tags       TaskTag[]
 
-  @@index([project_id])
-  @@index([project_id, created_at])
-  @@index([project_id, end_date])
+  @@index([project_id, status, end_date])
+  @@index([project_id, user_id, end_date])
   @@index([project_id, title])
-  @@index([project_id, user_id])
-  @@index([project_id, status])
+  @@index([project_id, created_at(sort: Desc)])
 }
 
 model SubTask {
@@ -247,4 +246,25 @@ model Tag {
   updated_at DateTime  @updatedAt @db.Timestamptz(6)
   // 태그목록
   tags       TaskTag[]
+}
+
+model Invitation {
+  // 사용자 초대 고유 ID
+  id         BigInt           @id @default(autoincrement())
+  token      String           @unique @default(cuid())
+  project_id BigInt
+  inviter_id BigInt
+  invitee_id BigInt
+  status     InvitationStatus @default(PENDING)
+  created_at DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at DateTime         @updatedAt @db.Timestamptz(6)
+  expires_at DateTime         @db.Timestamptz(6)
+  inviter    User             @relation("inviter", fields: [inviter_id], references: [id], onDelete: Cascade)
+  invitee    User             @relation("invitee", fields: [invitee_id], references: [id], onDelete: Cascade)
+  project    Project          @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, invitee_id])
+  @@index([status, expires_at])
+  @@index([project_id, status])
+  @@index([invitee_id, status])
 }

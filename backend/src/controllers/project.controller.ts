@@ -2,9 +2,18 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { UnauthorizedError } from '../errors/UnauthorizedError';
-import * as subTaskService from '../services/subTask.service';
-import { bigint } from 'zod';
-//import { createProjectBody, updateProjectBody } from '../dtos/project.dto';
+import * as projectService from '../services/project.service';
+import { commonIdParam, listParams } from '../dtos/common.dto';
+
+export async function getMyProjects(req: Request, res: Response) {
+  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+  const { userId } = commonIdParam.pick({ userId: true }).required().parse({
+    userId: req.user.id,
+  });
+  const params = listParams.parse(req.query);
+  const project = await projectService.getMyProjects(userId, params);
+  res.status(200).json(project);
+}
 
 //프로젝트 생성
 export const createProject = async (req: Request, res: Response) => {
