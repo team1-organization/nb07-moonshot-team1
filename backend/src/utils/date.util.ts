@@ -10,16 +10,19 @@ export function isValidDate(value: unknown): value is Date {
 
 /**
  * 주어진 값을 안전하게 Date 객체로 변환합니다.
- * 변환에 실패하면 null을 반환합니다.
+ * 변환에 실패하면 null 반환합니다.
  * @param {*} value - 변환할 값 (Date 객체, 타임스탬프, 날짜 문자열 등)
  * @returns {Date | null} 변환된 Date 객체 또는 null
  */
+
 export function safeDate(value: unknown): Date | null {
   if (value === null || value === undefined) return null;
   if (typeof value === 'string' && value.trim().length === 0) return null;
+  if (!(value instanceof Date) && typeof value !== 'string' && typeof value !== 'number') {
+    return null;
+  }
 
-  const date = value instanceof Date ? value : new Date(value as any);
-
+  const date = value instanceof Date ? value : new Date(value);
   return isValidDate(date) ? date : null;
 }
 

@@ -1,15 +1,15 @@
 'use client';
 
 import classNames from 'classnames/bind';
-import { useActionState } from 'react';
+import {useActionState} from 'react';
 import ImageInput from '@/shared/components/ImageInput';
 import Input from '@/shared/components/Input';
 import Label from '@/shared/components/Label';
 import Button from '@/shared/components/Button';
 import styles from './SettingsForm.module.css';
-import { User } from '@/types/entities';
-import { toast } from 'react-toastify';
-import { updateMe } from '../actions';
+import {User} from '@/types/entities';
+import {toast} from 'react-toastify';
+import {updateMe} from '../actions';
 
 const cx = classNames.bind(styles);
 
@@ -85,6 +85,7 @@ const SettingsForm = ({ user }: { user: User }) => {
           <ImageInput
             url={user.profileImage}
             onChange={handleChangeProfileImage}
+            type="user"
           />
         </div>
         <div className={cx('inputContainer')}>

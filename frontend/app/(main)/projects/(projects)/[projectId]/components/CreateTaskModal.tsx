@@ -3,14 +3,14 @@
 import classNames from 'classnames/bind';
 import Modal from '@/shared/components/Modal';
 import Label from '@/shared/components/Label';
-import Input, { Textarea } from '@/shared/components/Input';
+import Input, {Textarea} from '@/shared/components/Input';
 import Button from '@/shared/components/Button';
 import styles from './CreateTaskModal.module.css';
 import TagInput from '@/shared/components/TagInput';
 import FileInput from '@/shared/components/FileInput';
-import { useActionState, useState } from 'react';
-import { createTask } from '../actions';
-import { toast } from 'react-toastify';
+import {useActionState, useState} from 'react';
+import {createTask} from '../actions';
+import {toast} from 'react-toastify';
 
 const cx = classNames.bind(styles);
 
@@ -168,7 +168,7 @@ const CreateTaskModal = ({
           </div>
           <div className={cx('inputContainer')}>
             <Label>파일 첨부</Label>
-            <FileInput urls={attachments} onChange={setAttachments} />
+            <FileInput urls={attachments} onChange={setAttachments} type="task"/>
           </div>
           <Button className={cx('button')} type="submit" disabled={isPending}>
             등록하기

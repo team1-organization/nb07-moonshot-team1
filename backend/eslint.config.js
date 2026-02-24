@@ -9,7 +9,7 @@ export default [
     ignores: ["node_modules/**", "dist/**"],
   },
   {
-    files: ["src/**/*.ts"],
+    files: ["src/**/*.ts", "tests/**/*.ts"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -39,7 +39,6 @@ export default [
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern : "^_"}],
       "@typescript-eslint/require-await": "error",
       "@typescript-eslint/no-floating-promises" : "error",
-      "@typescript-eslint/explicit-function-return-type" : "error",
     },
   },
 ];

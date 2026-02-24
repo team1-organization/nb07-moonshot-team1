@@ -6,3 +6,267 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ENUM 설정
+
+// 소셜 로그인 3자 제공자 구분
+enum ProviderEnum {
+  LOCAL // 자체 회원가입
+  GOOGLE // 구글
+  KAKAO // 카카오
+  FACEBOOK // 페이스북
+  NAVER // 네이버
+}
+
+// 할일 상태 구분
+enum TaskStatus {
+  TODO // 진행 전
+  IN_PROGRESS // 진행 중
+  DONE // 완료
+}
+
+// 할일 멤버 구분
+enum MemberRole {
+  OWNER // 작성자
+  MEMBER // 멤버(초대받은 사람)
+}
+
+enum InvitationStatus {
+  PENDING // 초대 대기 중
+  ACCEPTED // 초대 수락됨
+  DECLINED // 초대 거절됨
+}
+
+model User {
+  // 사용자 고유 ID
+  id            BigInt       @id @default(autoincrement())
+  // 로그인 이메일
+  email         String       @unique
+  // 비밀번호
+  password      String?
+  // 사용자 이름
+  name          String
+  // 프로필 이미지
+  profile_image String?
+  // 로그인 제공자
+  provider      ProviderEnum @default(LOCAL)
+  // 소셜 로그인 ID
+  provider_id   String?
+  // 생성일시
+  created_at    DateTime     @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at    DateTime     @updatedAt @db.Timestamptz(6)
+
+  // 사용자가 생성한 프로젝트
+  projects             Project[]
+  // 사용자가 작성한 답글
+  comments             Comment[]
+  // 사용자가 프로젝트에 참여한 내용
+  members              Member[]
+  // 사용자 할일
+  tasks                Task[]
+  // 하위 할일
+  subTasks             SubTask[]
+  inviters             Invitation[] @relation("inviter")
+  invitees             Invitation[] @relation("invitee")
+  google_access_token  String?
+  google_refresh_token String?
+
+  @@unique([provider, provider_id])
+  @@index([created_at])
+}
+
+model Project {
+  // 프로젝트 고유 ID
+  id          BigInt       @id @default(autoincrement())
+  // 사용자 고유 ID
+  user_id     BigInt
+  // 제목
+  title       String
+  // 설명
+  description String
+  // 생성일시
+  created_at  DateTime     @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at  DateTime     @updatedAt @db.Timestamptz(6)
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  member      Member[]
+  invitations Invitation[]
+
+  @@index([user_id])
+  @@index([created_at])
+}
+
+model Comment {
+  // 답글 고유 ID
+  id         BigInt   @id @default(autoincrement())
+  // 사용자 고유 ID
+  user_id    BigInt
+  // 할일 고유 ID
+  task_id    BigInt
+  // 답글 내용
+  content    String
+  // 생성일시
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  task Task @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  @@index([created_at])
+  @@index([task_id, created_at])
+  @@index([user_id, created_at])
+}
+
+model Member {
+  // 멤버 고유 ID
+  id         BigInt     @id @default(autoincrement())
+  project_id BigInt
+  user_id    BigInt
+  // 생성일시
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime   @updatedAt @db.Timestamptz(6)
+  // 멤버 역할
+  role       MemberRole @default(MEMBER)
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  project    Project    @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, user_id])
+  @@index([user_id])
+  @@index([project_id])
+}
+
+model Task {
+  // 할일 고유 ID
+  id         BigInt     @id @default(autoincrement())
+  // 프로젝트 고유 ID
+  project_id BigInt
+  // 사용자 고유 ID
+  user_id    BigInt
+  // 할일 제목
+  title      String
+  // 구글 캘린더 이벤트 아이디(필요하면....)
+  event_id   String?
+  // 내용
+  content    String     @db.Text
+  // 시작일
+  start_date DateTime   @db.Timestamptz(6)
+  // 마감일
+  end_date   DateTime   @db.Timestamptz(6)
+  // 생성일시
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime   @updatedAt @db.Timestamptz(6)
+  // 할일 상태
+  status     TaskStatus @default(TODO)
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  comments   Comment[]
+  taskImages TaskImage[]
+  subTasks   SubTask[]
+  tags       TaskTag[]
+
+  @@index([project_id, status, end_date])
+  @@index([project_id, user_id, end_date])
+  @@index([project_id, title])
+  @@index([project_id, created_at(sort: Desc)])
+}
+
+model SubTask {
+  // 서브 할일 고유 ID
+  id         BigInt     @id @default(autoincrement())
+  // 할일 고유 ID
+  task_id    BigInt
+  // 사용자 고유 ID
+  user_id    BigInt
+  // 서브 할일 내용
+  content    String
+  // 할일 상태
+  status     TaskStatus @default(TODO)
+  // 생성일시
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime   @updatedAt @db.Timestamptz(6)
+  // 할일
+  task       Task       @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([task_id])
+  @@index([user_id])
+}
+
+model TaskImage {
+  // 이미지 고유 ID
+  id         BigInt   @id @default(autoincrement())
+  // 할일 고유 ID
+  task_id    BigInt
+  // 이미지 URL
+  url        String
+  // 이미지 순서
+  order      Int      @default(0)
+  // 생성일시
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  task       Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  @@unique([task_id, order])
+  @@index([task_id])
+}
+
+model TaskTag {
+  // 태그 고유 ID
+  id         BigInt   @id @default(autoincrement())
+  // 할일 고유 ID
+  task_id    BigInt
+  // 태그 고유 ID
+  tag_id     BigInt
+  // 생성일시
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  task       Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([task_id, tag_id])
+  @@index([tag_id])
+}
+
+model Tag {
+  // 태그 고유 ID
+  id         BigInt    @id @default(autoincrement())
+  // 태그명
+  name       String    @unique
+  // 생성일시
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  // 수정일시
+  updated_at DateTime  @updatedAt @db.Timestamptz(6)
+  // 태그목록
+  tags       TaskTag[]
+}
+
+model Invitation {
+  // 사용자 초대 고유 ID
+  id         BigInt           @id @default(autoincrement())
+  token      String           @unique @default(cuid())
+  project_id BigInt
+  inviter_id BigInt
+  invitee_id BigInt
+  status     InvitationStatus @default(PENDING)
+  created_at DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at DateTime         @updatedAt @db.Timestamptz(6)
+  expires_at DateTime         @db.Timestamptz(6)
+  inviter    User             @relation("inviter", fields: [inviter_id], references: [id], onDelete: Cascade)
+  invitee    User             @relation("invitee", fields: [invitee_id], references: [id], onDelete: Cascade)
+  project    Project          @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, invitee_id])
+  @@index([status, expires_at])
+  @@index([project_id, status])
+  @@index([invitee_id, status])
+}

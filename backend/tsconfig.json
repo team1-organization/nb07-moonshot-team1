@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     /* 경로 설정 */
-    "rootDir": "./src", // 실제 코드가 위치할 폴더
+    "rootDir": "./", // 실제 코드가 위치할 폴더
     "outDir": "./dist", // 컴파일된 파일이 저장될 폴더
 
     /* 모듈 및 타겟 설정 */
@@ -12,7 +12,7 @@
     /* 라이브러리 및 타입 설정 */
     "lib" : ["ESNext"], // 사용할 JS 표준 라이브러리
     "types": ["node"], // Node.js 기본 타입 정의 포함
-
+    "typeRoots": ["node_modules/@types", "./node_modules/@types"],
     /* 호환성 및 편의성 */
     "allowImportingTsExtensions": false, // 빌드 결과물을 위해 false 유지
     "resolveJsonModule": true,
@@ -27,5 +27,5 @@
     "removeComments": true,   // 빌드 결과물에서 주석 제거
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "generate"]
+  "exclude": ["node_modules", "dist", "generate", "tests/**/*", "**/*.test.ts"]
 }

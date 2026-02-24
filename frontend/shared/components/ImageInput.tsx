@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import {useRef, useState} from 'react';
 import classNames from 'classnames/bind';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import Image from 'next/image';
-import { uploadFiles } from '@/app/actions';
+import {uploadFiles} from '@/app/actions';
 import CloseButton from '@/public/assets/close-button.svg';
 import BlankProfile from '@/public/assets/blank-profile.svg';
 import styles from './ImageInput.module.css';
@@ -16,15 +16,17 @@ const ImageInput = ({
   className,
   url = null,
   onChange,
+  type
 }: {
   className?: string;
   url: string | null;
   onChange: (url: string | null) => void;
+  type : 'user' | 'task'
 }) => {
   const [isPending, setIsPending] = useState(false);
   const handleUploadFile = async (file: File) => {
     setIsPending(true);
-    const { error, success, data } = await uploadFiles([file]);
+    const { error, success, data } = await uploadFiles([file], type);
     setIsPending(false);
     if (error) {
       toast.error(error);
