@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     /* 경로 설정 */
-    "rootDir": "./src", // 실제 코드가 위치할 폴더
+    "rootDir": "./", // 실제 코드가 위치할 폴더
     "outDir": "./dist", // 컴파일된 파일이 저장될 폴더
 
     /* 모듈 및 타겟 설정 */
@@ -26,6 +26,6 @@
     "sourceMap": true,        // 에러 발생 시 원본 TS 코드 위치 추적 가능
     "removeComments": true,   // 빌드 결과물에서 주석 제거
   },
-  "include": ["src/**/*", "tests/**/*"],
-  "exclude": ["node_modules", "dist", "generate"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "generate", "tests/**/*", "**/*.test.ts"]
 }
