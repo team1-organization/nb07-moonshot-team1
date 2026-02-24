@@ -38,7 +38,10 @@ export async function getTasks(req: Request, res: Response) {
     userId,
     data: validateQueryParams,
   });
-  res.status(200).json(tasks);
+  res.status(200).json({
+    data: tasks,
+    total: tasks.length,
+  });
 }
 export async function getTaskDetail(req: Request, res: Response) {
   if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');

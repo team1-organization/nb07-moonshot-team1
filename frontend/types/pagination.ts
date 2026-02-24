@@ -1,4 +1,4 @@
-import { TaskStatus } from './TaskStatus';
+import {TaskStatus} from './TaskStatus';
 
 export interface PaginationOption {
   page: number;
@@ -26,7 +26,7 @@ export interface FindMyTasksQuery {
   from?: string;
   to?: string;
   project_id?: number;
-  status?: 'todo' | 'in_progress' | 'done';
+  status?: 'TODO' | 'IN_PROGRESS' | 'DONE';
   assignee_id?: number;
   keyword?: string;
 }

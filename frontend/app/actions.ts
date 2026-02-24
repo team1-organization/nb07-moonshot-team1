@@ -4,10 +4,12 @@ import ActionResult from '@/types/ActionResult';
 import * as api from '@/shared/api';
 
 export const uploadFiles = async (
-  files: File[]
+  files: File[],
+  type : string,
+  taskId? : string,
 ): Promise<ActionResult<string[]>> => {
   try {
-    const urls = await api.uploadFiles(files);
+    const urls = await api.uploadFiles(files, type, taskId);
     return {
       error: null,
       success: '파일 업로드 성공',

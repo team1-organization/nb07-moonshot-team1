@@ -33,7 +33,7 @@ export interface ProjectData {
 export interface ProjectParams {
   id: string;
   user_id: string;
-  title: string;
+  name: string;
   description: string;
   user: {
     id: string;
@@ -46,7 +46,6 @@ export interface ProjectParams {
     title: string;
     status: TaskStatus;
   }[];
-  //member
   created_at: string;
   updated_at: string;
 }
@@ -54,7 +53,7 @@ export interface ProjectParams {
 export class Project {
   readonly id: string;
   readonly user_id: string;
-  readonly title: string;
+  readonly name: string;
   readonly description: string;
   readonly user: {
     id: string;
@@ -73,7 +72,7 @@ export class Project {
   constructor(params: ProjectParams) {
     this.id = params.id;
     this.user_id = params.user_id;
-    this.title = params.title;
+    this.name = params.name;
     this.description = params.description;
     this.user = params.user;
     this.task = params.task;
@@ -85,7 +84,7 @@ export class Project {
     return new Project({
       id: safeString(data.id),
       user_id: safeString(data.user_id),
-      title: safeString(data.title),
+      name: safeString(data.title),
       description: safeString(data.description),
       user: {
         id: safeString(data.user.id),
@@ -122,7 +121,7 @@ export interface ProjectSummaryData {
 
 export interface ProjectSummaryParam {
   id: string;
-  title: string;
+  name: string;
   memberCount: number;
   todoCount: number;
   inProgressCount: number;
@@ -133,7 +132,7 @@ export interface ProjectSummaryParam {
 
 export class ProjectSummary {
   readonly id: string;
-  readonly title: string;
+  readonly name: string;
   readonly memberCount: number;
   readonly todoCount: number;
   readonly inProgressCount: number;
@@ -142,7 +141,7 @@ export class ProjectSummary {
   readonly updatedAt: string;
   constructor(params: ProjectSummaryParam) {
     this.id = safeString(params.id);
-    this.title = params.title;
+    this.name = params.name;
     this.memberCount = params.memberCount;
     this.todoCount = params.todoCount;
     this.inProgressCount = params.inProgressCount;
@@ -165,7 +164,7 @@ export class ProjectSummary {
 
     return new ProjectSummary({
       id: safeString(data.id),
-      title: data.title,
+      name: data.title,
       memberCount: data.member.length || 0,
       todoCount: taskData.todo,
       inProgressCount: taskData.inProgress,

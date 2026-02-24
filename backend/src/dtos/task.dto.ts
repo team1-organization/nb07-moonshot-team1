@@ -3,7 +3,7 @@ import { default as LocalDateTime } from 'dayjs';
 
 export const baseTaskBody = z.object({
   title: z.string().min(1, '제목을 입력해주세요').max(100),
-  content: z.string().min(1, '내용을 입력해주세요').max(1000),
+  description: z.string().min(1, '내용을 입력해주세요').max(1000),
   startYear: z.number().int().min(2026),
   startMonth: z.number().int().min(1).max(12),
 
@@ -11,7 +11,12 @@ export const baseTaskBody = z.object({
   endYear: z.number().int().min(2026),
   endMonth: z.number().int().min(1).max(12),
   endDay: z.number().int().min(1).max(31),
-  status: z.enum(['TODO', 'IN_PROGRESS', 'DONE']).default('TODO'),
+  status: z
+    .preprocess(
+      (val) => (typeof val === 'string' ? val.toUpperCase() : val),
+      z.enum(['TODO', 'IN_PROGRESS', 'DONE']),
+    )
+    .default('TODO'),
   tags: z.array(z.string()).default([]),
   attachments: z.array(z.string()).default([]),
 });

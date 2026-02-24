@@ -1,16 +1,16 @@
 'use client';
 
-import { useActionState } from 'react';
+import {useActionState} from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import classNames from 'classnames/bind';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import Input from '@/shared/components/Input';
 import Button from '@/shared/components/Button';
 import Label from '@/shared/components/Label';
 import OAuthProvider from '@/types/OAuthProivder';
 import SocialButton from '../components/SocialButton';
-import { login, LoginInput } from './actions';
+import {login, LoginInput} from './actions';
 import styles from '../shared.module.css';
 
 const cx = classNames.bind(styles);
@@ -77,10 +77,10 @@ const LoginPage = () => {
       <div className={cx(styles.socialLoginContainer)}>
         <p className={cx(styles.socialButtonTitle)}>SNS 간편 로그인</p>
         <div className={cx(styles.socialButtonContainer)}>
-          <SocialButton provider={OAuthProvider.NAVER} />
+          {/*<SocialButton provider={OAuthProvider.NAVER} />*/}
           <SocialButton provider={OAuthProvider.GOOGLE} />
-          <SocialButton provider={OAuthProvider.FACEBOOK} />
-          <SocialButton provider={OAuthProvider.KAKAO} />
+          {/*<SocialButton provider={OAuthProvider.FACEBOOK} />*/}
+          {/*<SocialButton provider={OAuthProvider.KAKAO} />*/}
         </div>
       </div>
     </div>

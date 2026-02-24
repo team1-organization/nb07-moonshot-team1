@@ -1,8 +1,8 @@
 'use client';
 
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import FileInput from '@/shared/components/FileInput';
-import { updateTask } from '../actions';
+import {updateTask} from '../actions';
 
 const EditTaskAttachmentInput = ({
   taskId,
@@ -26,7 +26,7 @@ const EditTaskAttachmentInput = ({
     }
   };
 
-  return <FileInput urls={urls} onChange={handleChange} />;
+  return <FileInput urls={urls} onChange={handleChange} type="task" taskId={String(taskId)}/>;
 };
 
 export default EditTaskAttachmentInput;

@@ -1,16 +1,16 @@
 'use client';
 
-import { useActionState } from 'react';
+import {useActionState} from 'react';
 import Image from 'next/image';
 import classNames from 'classnames/bind';
-import { toast } from 'react-toastify';
-import { formatInTimeZone } from 'date-fns-tz';
+import {toast} from 'react-toastify';
+import {formatInTimeZone} from 'date-fns-tz';
 import Input from '@/shared/components/Input';
 import BlankProfile from '@/public/assets/blank-profile.svg';
-import { Comment } from '@/types/entities';
+import {Comment} from '@/types/entities';
 import CommentMoreMenu from './CommentMoreMenu';
 import styles from './CommentList.module.css';
-import { createComment } from '../actions';
+import {createComment} from '../actions';
 
 const cx = classNames.bind(styles);
 
@@ -64,6 +64,7 @@ const CommentList = ({
   comments: Comment[];
   taskId: number;
 }) => {
+    console.log('데이터 확인:', comments);
   const [state, dispatch, isPending] = useActionState(
     async (prevState: { content: string }, nextState: FormData) => {
       const values = {

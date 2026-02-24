@@ -57,16 +57,16 @@ export async function updateComment(req: Request, res: Response) {
   const comment = await commentService.updateComment({ commentId, userId, data });
   res.status(200).json(comment);
 }
-//
-// export async function deleteComment(req: Request, res: Response) {
-//   if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
-//   const { commentId, userId } = commonIdParam
-//     .pick({ commentId: true, userId: true })
-//     .required()
-//     .parse({
-//       commentId: req.params.projectId,
-//       userId: req.user.id,
-//     });
-//   const comment = await commentService.deleteComment({ commentId, userId });
-//   res.status(200).json(comment);
-// }
+
+export async function deleteComment(req: Request, res: Response) {
+  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+  const { commentId, userId } = commonIdParam
+    .pick({ commentId: true, userId: true })
+    .required()
+    .parse({
+      commentId: req.params.commentId,
+      userId: req.user.id,
+    });
+  const comment = await commentService.deleteComment({ commentId, userId });
+  res.status(200).json(comment);
+}

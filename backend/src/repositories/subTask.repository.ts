@@ -67,6 +67,7 @@ export async function updateSubTask({
     },
     data: {
       content: data.title,
+      status: data.status,
     },
   });
 }

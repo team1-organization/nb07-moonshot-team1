@@ -18,7 +18,7 @@ export interface SubTaskParams {
   id: string;
   taskId: string;
   userId: string;
-  content: string;
+  title: string;
   status: SubTaskStatus;
   createdAt: string;
   updatedAt: string;
@@ -28,7 +28,7 @@ export class SubTask {
   readonly id: string;
   readonly taskId: string;
   readonly userId: string;
-  readonly content: string;
+  readonly title: string;
   readonly status: SubTaskStatus;
   readonly createdAt: string;
   readonly updatedAt: string;
@@ -37,7 +37,7 @@ export class SubTask {
     this.id = params.id;
     this.taskId = params.taskId;
     this.userId = params.userId;
-    this.content = params.content;
+    this.title = params.title;
     this.status = params.status;
     this.createdAt = params.createdAt;
     this.updatedAt = params.updatedAt;
@@ -48,7 +48,7 @@ export class SubTask {
       id: safeString(data.id),
       taskId: safeString(data.task_id),
       userId: safeString(data.user_id),
-      content: data.content,
+      title: data.content,
       status: data.status,
       createdAt: LocalDateTime(data.created_at).format(DATE_FORMAT),
       updatedAt: LocalDateTime(data.updated_at).format(DATE_FORMAT),

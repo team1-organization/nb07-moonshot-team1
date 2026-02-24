@@ -108,10 +108,11 @@ export async function getProjectMembers({
       },
       skip: (data.page - 1) * data.limit,
       take: data.limit,
+      orderBy: { project: { created_at: 'desc' } },
     }),
     prisma.member.count({ where: { project_id: BigInt(projectId) } }),
     prisma.invitation.findMany({
-      where: { project_id: BigInt(projectId), status: { in: ['PENDING', 'DECLINED'] } },
+      where: { project_id: BigInt(projectId), status: 'PENDING' },
       include: {
         invitee: {
           select: { id: true, name: true, email: true, profile_image: true },
@@ -123,7 +124,7 @@ export async function getProjectMembers({
   const joinedList: MemberData[] = members.map((m) => ({
     ...m,
     status: 'JOINED' as const,
-    user: { ...m.user, tasks: [] },
+    isMe: m.user_id === BigInt(userId),
   }));
 
   const invitationList = invitations.map((i) => ({
@@ -131,6 +132,7 @@ export async function getProjectMembers({
     project_id: i.project_id,
     user_id: i.invitee_id,
     role: 'MEMBER' as const,
+    isMe: i.invitee_id === BigInt(userId),
     status: i.status === 'PENDING' ? ('INVITED' as const) : ('DECLINED' as const),
     user: { ...i.invitee, _count: { tasks: 0 } },
   }));
@@ -161,11 +163,11 @@ export async function getInvitationById(invitationId: string) {
 export async function acceptInvitation({
   invitationId,
   projectId,
-  userId,
+  inviteeId,
 }: {
   invitationId: string;
   projectId: string;
-  userId: string;
+  inviteeId: string;
 }) {
   return prisma.$transaction(async (tx) => {
     await tx.invitation.update({
@@ -175,7 +177,7 @@ export async function acceptInvitation({
     return tx.member.create({
       data: {
         project_id: BigInt(projectId),
-        user_id: BigInt(userId),
+        user_id: BigInt(inviteeId),
         role: 'MEMBER',
       },
     });
