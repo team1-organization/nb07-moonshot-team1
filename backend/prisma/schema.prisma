@@ -58,17 +58,19 @@ model User {
   updated_at    DateTime     @updatedAt @db.Timestamptz(6)
 
   // 사용자가 생성한 프로젝트
-  projects Project[]
+  projects             Project[]
   // 사용자가 작성한 답글
-  comments Comment[]
+  comments             Comment[]
   // 사용자가 프로젝트에 참여한 내용
-  members  Member[]
+  members              Member[]
   // 사용자 할일
-  tasks    Task[]
+  tasks                Task[]
   // 하위 할일
-  subTasks SubTask[]
-  inviters Invitation[] @relation("inviter")
-  invitees Invitation[] @relation("invitee")
+  subTasks             SubTask[]
+  inviters             Invitation[] @relation("inviter")
+  invitees             Invitation[] @relation("invitee")
+  google_access_token  String?
+  google_refresh_token String?
 
   @@unique([provider, provider_id])
   @@index([created_at])
