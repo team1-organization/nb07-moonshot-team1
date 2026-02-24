@@ -26,13 +26,3 @@ export const getGoogleCalendarClient = (
   });
   return google.calendar({ version: 'v3', auth });
 };
-
-export async function getUserGoogleTokens(userId: string) {
-  return prisma.user.findUnique({
-    where: { id: BigInt(userId) },
-    select: {
-      google_access_token: true,
-      google_refresh_token: true,
-    },
-  });
-}
