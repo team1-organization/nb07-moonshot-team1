@@ -19,12 +19,17 @@ export const commonIdParam = z
 
 export const pageParam = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(10).max(50).default(10),
+  limit: z.coerce.number().int().min(10).max(100).default(10),
 });
 
 //검색 및 정렬 (목록 조회 공통)
 export const searchParams = z.object({
-  status: z.enum(['todo', 'in_progress', 'done']).default('todo'),
+  status: z
+    .preprocess(
+      (val) => (typeof val === 'string' ? val.toUpperCase() : val),
+      z.enum(['TODO', 'IN_PROGRESS', 'DONE']),
+    )
+    .optional(),
   assignee: z.coerce.number().optional(),
   keyword: z.string().optional(),
   order: z.enum(['asc', 'desc']).default('desc'),

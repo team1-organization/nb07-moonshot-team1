@@ -5,11 +5,7 @@ import passport from '../lib/passport';
 
 const router = Router();
 
-router.post(
-  '/:invitationId/accept',
-  passport.authenticate('accessToken', { session: false, failWithError: true }),
-  withAsync(memberController.acceptInvitation),
-);
+router.get('/:invitationId/accept', withAsync(memberController.acceptInvitation));
 
 router.delete(
   '/:invitationId',

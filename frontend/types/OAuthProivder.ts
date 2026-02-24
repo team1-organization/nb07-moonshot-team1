@@ -1,8 +1,8 @@
 enum OAuthProvider {
-  GOOGLE = 'google',
-  KAKAO = 'kakao',
-  NAVER = 'naver',
-  FACEBOOK = 'facebook',
+  GOOGLE = 'GOOGLE',
+  KAKAO = 'KAKAO',
+  NAVER = 'NAVER',
+  FACEBOOK = 'FACEBOOK',
 }
 
 export default OAuthProvider;

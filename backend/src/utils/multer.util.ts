@@ -2,6 +2,7 @@ import multer, { FileFilterCallback } from 'multer';
 import _path from 'path';
 import fs from 'fs/promises';
 import { Request } from 'express';
+
 export const multerUtil = multer({
   storage: multer.diskStorage({
     // 사용자별 폴더 생성
@@ -10,7 +11,9 @@ export const multerUtil = multer({
       file: Express.Multer.File,
       cb: (error: Error | null, destination: string) => void,
     ) {
-      const uploadDir = _path.join('public', 'images');
+      const imageType = (req.body.type as string) || 'others';
+      console.log(`imageType : ${imageType}`);
+      const uploadDir = _path.join('public', 'images', imageType);
       try {
         // 폴더가 없으면 생성
         await fs.mkdir(uploadDir, { recursive: true });
@@ -26,7 +29,8 @@ export const multerUtil = multer({
     ) {
       // 프로필 사진은 하나만: image + 타임스탬프 + 확장자
       const ext = _path.extname(file.originalname);
-      cb(null, `style-${Date.now()}${ext}`);
+      const type = (req.query.type as string) || 'file';
+      cb(null, `${type}-${Date.now()}${ext}`);
     },
   }),
   limits: {

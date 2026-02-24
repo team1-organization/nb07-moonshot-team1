@@ -1,6 +1,17 @@
 import { prisma } from '../lib/prisma';
 import { searchParamsDTO } from '../dtos/common.dto';
 
+const COMMENT_INCLUDE = {
+  user: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profile_image: true,
+    },
+  },
+};
+
 export async function createComment({
   taskId,
   userId,
@@ -16,6 +27,7 @@ export async function createComment({
       user_id: BigInt(userId),
       content,
     },
+    include: COMMENT_INCLUDE,
   });
 }
 
@@ -24,6 +36,7 @@ export async function getComments({ taskId, ...data }: { taskId: string } & sear
     where: {
       task_id: BigInt(taskId),
     },
+    include: COMMENT_INCLUDE,
     skip: (data.page - 1) * data.limit,
     take: data.limit,
     orderBy: { created_at: 'desc' },
@@ -35,6 +48,7 @@ export async function getCommentDetail(commentId: string) {
     where: {
       id: BigInt(commentId),
     },
+    include: COMMENT_INCLUDE,
   });
 }
 
@@ -55,14 +69,15 @@ export async function updateComment({
     data: {
       content,
     },
+    include: COMMENT_INCLUDE,
   });
 }
-//
-// export async function deleteComment(commentId: string, userId: string) {
-//   return prisma.comment.delete({
-//     where: {
-//       id: BigInt(commentId),
-//       user_id: BigInt(userId),
-//     },
-//   });
-// }
+
+export async function deleteComment(commentId: string, userId: string) {
+  return prisma.comment.delete({
+    where: {
+      id: BigInt(commentId),
+      user_id: BigInt(userId),
+    },
+  });
+}

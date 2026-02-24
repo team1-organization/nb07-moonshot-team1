@@ -1,4 +1,4 @@
-import { MemberRole, MemberStatus, ProviderEnum, TaskStatus } from '../generated/prisma'; // output 경로 확인 필요
+import { MemberRole, ProviderEnum, TaskStatus } from '../generated/prisma'; // output 경로 확인 필요
 import { prisma } from '../src/lib/prisma';
 
 async function main(): Promise<void> {
@@ -58,13 +58,11 @@ async function main(): Promise<void> {
       {
         project_id: project.id,
         user_id: owner.id,
-        status: MemberStatus.JOINED,
         role: MemberRole.OWNER,
       },
       {
         project_id: project.id,
         user_id: member.id,
-        status: MemberStatus.JOINED,
         role: MemberRole.MEMBER,
       },
     ],
@@ -96,8 +94,8 @@ async function main(): Promise<void> {
 
       subTasks: {
         create: [
-          { content: 'Auth API 설계', completed: true },
-          { content: 'Project API 설계', completed: false },
+          { content: 'Auth API 설계', user_id: owner.id },
+          { content: 'Project API 설계', user_id: owner.id },
         ],
       },
 

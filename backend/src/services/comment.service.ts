@@ -71,11 +71,11 @@ export async function updateComment({
   });
   return Comment.fromEntity(comment);
 }
-//
-// export async function deleteComment({ commentId, userId }: { commentId: string; userId: string }) {
-//   const isMember = await memberRepository.isMemberByCommentId(commentId, userId);
-//   if (!isMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
-//   const comment = await commentRepository.getCommentDetail(commentId);
-//   if (!comment) throw new Error('삭제하려는 할 일이 없습니다.');
-//   return await commentRepository.deleteComment(commentId, userId);
-// }
+
+export async function deleteComment({ commentId, userId }: { commentId: string; userId: string }) {
+  const isMember = await memberRepository.isMemberByCommentId(commentId, userId);
+  if (!isMember) throw new ForbiddenError('프로젝트 멤버가 아닙니다');
+  const comment = await commentRepository.getCommentDetail(commentId);
+  if (!comment) throw new Error('삭제하려는 할 일이 없습니다.');
+  return await commentRepository.deleteComment(commentId, userId);
+}

@@ -2,6 +2,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma } from '../../generated/prisma';
 import { createTaskDTO, updateTaskDTO } from '../dtos/task.dto';
 import { searchParamsDTO } from '../dtos/common.dto';
+import { TaskStatus } from '../types/task.type';
 
 const TASK_INCLUDE = {
   user: true,
@@ -66,7 +67,7 @@ export async function createTask({
   startDate,
   endDate,
   title,
-  content,
+  description,
   status,
   tags = [],
   attachments = [],
@@ -82,7 +83,7 @@ export async function createTask({
         project_id: BigInt(projectId),
         user_id: BigInt(userId),
         title: title,
-        content: content,
+        content: description,
         status: status,
         start_date: startDate,
         end_date: endDate,
@@ -104,11 +105,15 @@ export async function getTasks({
   projectId: string;
   userId: string;
 } & searchParamsDTO) {
+  const where: Prisma.TaskWhereInput = {
+    project_id: BigInt(projectId),
+    user_id: data.assignee ? BigInt(data.assignee) : BigInt(userId),
+  };
+  if (data.status) {
+    where.status = data.status as TaskStatus;
+  }
   return prisma.task.findMany({
-    where: {
-      project_id: BigInt(projectId),
-      user_id: BigInt(userId),
-    },
+    where,
     skip: (data.page - 1) * data.limit,
     take: data.limit,
     orderBy: { created_at: 'desc' },
@@ -152,10 +157,7 @@ export async function updateTask({
         });
       }
     }
-    if (data.attachments) {
-      await transaction.taskImage.deleteMany({ where: { task_id: BigInt(taskId) } });
-      await createTaskImage({ transaction, taskId, attachments: data.attachments });
-    }
+
     return transaction.task.update({
       where: {
         id: BigInt(taskId),
@@ -163,7 +165,7 @@ export async function updateTask({
       },
       data: {
         title: data.title,
-        content: data.content,
+        content: data.description,
         status: data.status,
         start_date: data.startDate,
         end_date: data.endDate,

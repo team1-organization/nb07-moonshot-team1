@@ -52,7 +52,7 @@ export const createProject = async (req: Request, res: Response) => {
 
     return res.status(201).json({
       id: Number(newProject.id),
-      title: newProject.title,
+      name: newProject.title,
       description: newProject.description,
       memberCount: 1,
       todoCount: 0,
@@ -105,7 +105,7 @@ export const getProject = async (req: Request, res: Response) => {
 
     return res.json({
       id: Number(project.id),
-      title: project.title,
+      name: project.title,
       description: project.description,
       memberCount: project._count.member,
       todoCount,
@@ -121,29 +121,26 @@ export const getProject = async (req: Request, res: Response) => {
 //프로젝트 수정
 export const updateProject = async (req: Request, res: Response) => {
   try {
-    const { projectId } = req.params as { projectId: string };
-    const { title, description } = req.body;
-
     if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
+    const { projectId, userId } = commonIdParam
+      .pick({ projectId: true, userId: true })
+      .required()
+      .parse({
+        userId: req.user.id,
+        projectId: req.params.projectId,
+      });
 
-    const authUser = req.user as { id?: string | number | bigint };
-
-    if (!authUser.id) {
-      throw new UnauthorizedError('인증된 유저 정보가 없습니다.');
-    }
-
-    const myId = BigInt(authUser.id);
-    const targetId = BigInt(projectId);
+    const { name, description } = req.body;
 
     const project = await prisma.project.findUnique({
       where: {
-        id: targetId,
+        id: BigInt(projectId),
       },
       include: {
         _count: { select: { member: true } },
         tasks: { select: { status: true } },
         member: {
-          where: { user_id: myId },
+          where: { user_id: BigInt(userId) },
         },
       },
     });
@@ -152,16 +149,16 @@ export const updateProject = async (req: Request, res: Response) => {
       return res.status(400).json({ message: '프로젝트를 찾을 수 없습니다.' });
     }
 
-    if (project.user_id !== myId) {
+    if (project.user_id.toString() !== userId) {
       return res.status(403).json({ message: '프로젝트 관리자가 아닙니다.' });
     }
 
     const updateProject = await prisma.project.update({
       where: {
-        id: targetId,
+        id: BigInt(projectId),
       },
       data: {
-        title: title ?? project.title,
+        title: name ?? project.title,
         description: description ?? project.description,
       },
       include: {
@@ -177,7 +174,7 @@ export const updateProject = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       id: updateProject.id,
-      title: updateProject.title,
+      name: updateProject.title,
       description: updateProject.description,
       memberCount: updateProject._count.member,
       todoCount: updateProject._count.tasks,

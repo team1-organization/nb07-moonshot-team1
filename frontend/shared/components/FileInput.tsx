@@ -1,11 +1,11 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { toast } from 'react-toastify';
+import {useRef, useState} from 'react';
+import {toast} from 'react-toastify';
 import Link from 'next/link';
 import classNames from 'classnames/bind';
 import CloseButton from '@/public/assets/close-button.svg';
-import { uploadFiles } from '@/app/actions';
+import {uploadFiles} from '@/app/actions';
 import styles from './FileInput.module.css';
 
 const cx = classNames.bind(styles);
@@ -14,15 +14,19 @@ const FileInput = ({
   urls = [],
   disabled = false,
   onChange = () => {},
+  type,
+  taskId
 }: {
   urls: string[];
   disabled?: boolean;
   onChange?: (urls: string[]) => void;
+  type : 'user' | 'task';
+  taskId? : string;
 }) => {
   const [isPending, setIsPending] = useState(false);
   const handleFileUpload = async (newFiles: File[]) => {
     setIsPending(true);
-    const { error, success, data } = await uploadFiles(newFiles);
+    const { error, success, data } = await uploadFiles(newFiles, type, taskId);
     if (error) {
       toast.error(error);
     }

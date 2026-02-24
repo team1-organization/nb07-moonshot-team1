@@ -41,10 +41,8 @@ export interface TaskParams {
   userId: string;
   title: string;
   eventId: string | null;
-  content: string;
+  description: string;
   status: TaskStatus;
-  startDate: string;
-  endDate: string;
   createdAt: string;
   updatedAt: string;
   assignee: {
@@ -53,8 +51,17 @@ export interface TaskParams {
     email: string;
     profileImage: string | null;
   };
-  tags: string[];
+  tags: {
+    id: string;
+    name: string;
+  }[];
   attachments: string[];
+  startYear: string;
+  startMonth: string;
+  startDay: string;
+  endYear: string;
+  endMonth: string;
+  endDay: string;
 }
 
 export class Task {
@@ -63,44 +70,57 @@ export class Task {
   readonly userId: string;
   readonly title: string;
   readonly eventId: string | null;
-  readonly content: string;
+  readonly description: string;
   readonly status: TaskStatus;
-  readonly startDate: string;
-  readonly endDate: string;
   readonly assignee: TaskParams['assignee'];
   readonly tags: TaskParams['tags'];
   readonly attachments: TaskParams['attachments'];
   readonly createdAt: string;
   readonly updatedAt: string;
-
+  readonly startYear: string;
+  readonly startMonth: string;
+  readonly startDay: string;
+  readonly endYear: string;
+  readonly endMonth: string;
+  readonly endDay: string;
   constructor(params: TaskParams) {
     this.id = params.id;
     this.projectId = params.projectId;
     this.userId = params.userId;
     this.title = params.title;
     this.eventId = params.eventId;
-    this.content = params.content;
+    this.description = params.description;
     this.status = params.status;
-    this.startDate = params.startDate;
-    this.endDate = params.endDate;
     this.assignee = params.assignee;
     this.tags = params.tags;
     this.attachments = params.attachments;
     this.createdAt = params.createdAt;
     this.updatedAt = params.updatedAt;
+    this.startYear = params.startYear;
+    this.startMonth = params.startMonth;
+    this.startDay = params.startDay;
+    this.endYear = params.endYear;
+    this.endMonth = params.endMonth;
+    this.endDay = params.endDay;
   }
   static fromEntity(data: TaskData): Task {
     if (!data) throw new Error('데이터가 없습니다.');
+    const start = LocalDateTime(data.start_date);
+    const end = LocalDateTime(data.end_date);
     return new Task({
       id: safeString(data.id),
       projectId: safeString(data.project_id),
       userId: safeString(data.user_id),
       eventId: data.event_id || null,
       title: data.title,
-      content: data.content,
+      description: data.content,
       status: data.status,
-      startDate: LocalDateTime(data.start_date).format(DATE_FORMAT),
-      endDate: LocalDateTime(data.end_date).format(DATE_FORMAT),
+      startYear: safeString(start.year()),
+      startMonth: safeString(start.month() + 1),
+      startDay: safeString(start.date()),
+      endYear: safeString(end.year()),
+      endMonth: safeString(end.month() + 1),
+      endDay: safeString(end.date()),
 
       assignee: {
         id: safeString(data.user.id),
@@ -108,14 +128,10 @@ export class Task {
         email: data.user.email,
         profileImage: data.user.profile_image,
       },
-      tags: (data.tags || [])
-        .slice()
-        .sort((a, b) => {
-          if (a.tag.id < b.tag.id) return -1;
-          if (a.tag.id > b.tag.id) return 1;
-          return 0;
-        })
-        .map((item) => item.tag.name),
+      tags: (data.tags || []).map((tags) => ({
+        id: safeString(tags.tag.id),
+        name: tags.tag.name,
+      })),
       attachments: (data.taskImages || [])
         .slice()
         .sort((a, b) => a.order - b.order)

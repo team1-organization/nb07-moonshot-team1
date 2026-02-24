@@ -50,16 +50,16 @@ export async function inviteUserToProject(req: Request, res: Response) {
 }
 
 export async function acceptInvitation(req: Request, res: Response) {
-  if (!req.user) throw new UnauthorizedError('로그인이 필요합니다');
-  const { invitationId, userId } = commonIdParam
-    .pick({ invitationId: true, userId: true })
+  const { invitationId, projectId, inviteeId } = commonIdParam
+    .pick({ invitationId: true, projectId: true, inviteeId: true })
     .required()
     .parse({
       invitationId: req.params.invitationId,
-      userId: req.user.id,
+      projectId: req.query.projectId,
+      inviteeId: req.query.inviteeId,
     });
-  const member = await memberService.acceptInvitation(invitationId, userId);
-  res.status(200).json(member);
+  const member = await memberService.acceptInvitation(invitationId, projectId, inviteeId);
+  res.status(200).json('초대 수락 완료');
 }
 
 export async function cancelInvitation(req: Request, res: Response) {

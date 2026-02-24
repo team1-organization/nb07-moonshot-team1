@@ -1,4 +1,5 @@
 import { safeString } from '../utils/string.util';
+import { safeNumber } from '../utils/number.util';
 
 export type MemberStatus = 'INVITED' | 'JOINED' | 'DECLINED';
 export type MemberRoleType = 'MEMBER' | 'OWNER';
@@ -9,12 +10,14 @@ export interface MemberData {
   user_id: bigint;
   status: MemberStatus;
   role: MemberRoleType;
+  isMe: boolean;
   user: {
     id: bigint;
     email: string;
     name: string;
     profile_image: string | null;
     task?: { id: bigint }[];
+    _count: { tasks: number };
   };
   projects?: {
     id: bigint;
@@ -57,13 +60,14 @@ export class Member {
       JOINED: 'accepted',
       DECLINED: 'rejected',
     };
+    const rawTaskCount = data.user._count?.tasks ?? data.user.task?.length ?? 0;
     return new Member({
       id: safeString(data.user.id),
       name: data.user.name,
       email: data.user.email,
       profileImage: data.user.profile_image,
       status: statusMap[data.status],
-      taskCount: 0,
+      taskCount: safeNumber(rawTaskCount),
       invitationId: safeString(data.id),
     });
   }

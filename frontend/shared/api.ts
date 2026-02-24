@@ -1,6 +1,6 @@
-import { AxiosError } from 'axios';
-import { axios } from './axios';
-import { PaginationResponse, FindMyTasksQuery } from '@/types/pagination';
+import {AxiosError} from 'axios';
+import {axios} from './axios';
+import {FindMyTasksQuery, PaginationResponse} from '@/types/pagination';
 import {
   Comment,
   Project,
@@ -11,7 +11,7 @@ import {
   User,
   UserWithCounts,
 } from '@/types/entities';
-import { TaskStatus } from '@/types/TaskStatus';
+import {TaskStatus} from '@/types/TaskStatus';
 
 const logError = (error: unknown) => {
   if (error instanceof AxiosError) {
@@ -505,11 +505,16 @@ export const getMyTasks = async (params: FindMyTasksQuery): Promise<Task[]> => {
   }
 };
 
-export const uploadFiles = async (files: File[]): Promise<string[]> => {
+export const uploadFiles = async (files: File[], type: string, taskId? : string) => {
   const formData = new FormData();
+  formData.append('type', type);
+  if (type === 'task' && taskId) {
+    formData.append('taskId', taskId);
+  }
   files.forEach((file) => {
     formData.append('files', file);
   });
+
   try {
     const response = await axios.postForm('/files', formData);
     return response.data;

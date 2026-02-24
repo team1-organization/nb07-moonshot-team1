@@ -1,6 +1,6 @@
 enum UserProjectRole {
-  owner = 'owner',
-  member = 'member',
+  owner = 'OWNER',
+  member = 'MEMBER',
 }
 
 export default UserProjectRole;
