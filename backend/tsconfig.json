@@ -5,14 +5,14 @@
     "outDir": "./dist", // 컴파일된 파일이 저장될 폴더
 
     /* 모듈 및 타겟 설정 */
-    "module": "ESNext", // 최신 Node.js 모듈 처리 방식
-    "moduleResolution": "Bundler", // 모듈을 찾는 방식 설정
+    "module": "NodeNext", // 최신 Node.js 모듈 처리 방식
+    "moduleResolution": "NodeNext", // 모듈을 찾는 방식 설정
     "target": "ESNext", // 최신 JS 문법으로 변환
 
     /* 라이브러리 및 타입 설정 */
     "lib" : ["ESNext"], // 사용할 JS 표준 라이브러리
     "types": ["node"], // Node.js 기본 타입 정의 포함
-    "typeRoots": ["./node_modules/@types"],
+    "typeRoots": ["node_modules/@types", "./node_modules/@types"],
     /* 호환성 및 편의성 */
     "allowImportingTsExtensions": false, // 빌드 결과물을 위해 false 유지
     "resolveJsonModule": true,
