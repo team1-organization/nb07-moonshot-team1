@@ -12,7 +12,7 @@
     /* 라이브러리 및 타입 설정 */
     "lib" : ["ESNext"], // 사용할 JS 표준 라이브러리
     "types": ["node"], // Node.js 기본 타입 정의 포함
-
+    "typeRoots": ["./node_modules/@types"],
     /* 호환성 및 편의성 */
     "allowImportingTsExtensions": false, // 빌드 결과물을 위해 false 유지
     "resolveJsonModule": true,
