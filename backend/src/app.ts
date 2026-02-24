@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/images', express.static(path.join(process.cwd(), 'public', 'images')));
 const allowedOrigins = [
   'http://localhost:3001', // 로컬 개발용
-  'https://nb07-moonshot-team101.vercel.app', // 배포된 프론트엔드 주소
+  'https://nb07-moonshot-team1-01.vercel.app', // 배포된 프론트엔드 주소
 ];
 app.use(
   cors({
