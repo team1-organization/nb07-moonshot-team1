@@ -1,10 +1,10 @@
 'use client';
 
 import classNames from 'classnames/bind';
-import { useActionState, useState } from 'react';
+import {useActionState, useState} from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
+import {useRouter} from 'next/navigation';
+import {toast} from 'react-toastify';
 import Input from '@/shared/components/Input';
 import Button from '@/shared/components/Button';
 import ImageInput from '@/shared/components/ImageInput';
@@ -12,7 +12,7 @@ import Label from '@/shared/components/Label';
 import OAuthProvider from '@/types/OAuthProivder';
 import SocialButton from '../components/SocialButton';
 import styles from '../shared.module.css';
-import { register, RegisterInput } from './actions';
+import {register, RegisterInput} from './actions';
 
 const cx = classNames.bind(styles);
 
@@ -59,7 +59,7 @@ const RegisterPage = () => {
       <form className={cx(styles.form)} action={dispatch}>
         <div className={cx(styles.inputContainer)}>
           <Label>프로필 이미지</Label>
-          <ImageInput url={profileImage} onChange={setProfileImage} />
+          <ImageInput url={profileImage} onChange={setProfileImage} type="user"/>
         </div>
         <div className={cx(styles.inputContainer)}>
           <Label>이메일</Label>
